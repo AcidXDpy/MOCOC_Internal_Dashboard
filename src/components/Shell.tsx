@@ -1,9 +1,10 @@
 import { BarChart3, ClipboardList, LayoutDashboard, MapPinned, Search, Sparkles, Table2 } from "lucide-react";
-import type { ComponentType, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 export type ViewKey = "overview" | "directory" | "map" | "insights" | "engagement" | "actions";
 
-const navItems: { key: ViewKey; label: string; icon: ComponentType<{ size?: number }> }[] = [
+const navItems: { key: ViewKey; label: string; icon: LucideIcon }[] = [
   { key: "overview", label: "Executive Overview", icon: LayoutDashboard },
   { key: "directory", label: "Member Directory", icon: Table2 },
   { key: "map", label: "Member Map", icon: MapPinned },
