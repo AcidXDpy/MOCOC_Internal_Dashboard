@@ -1,6 +1,7 @@
 import { BarChart3, ClipboardList, LayoutDashboard, MapPinned, Search, Sparkles, Table2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
+import chamberLogo from "../assets/mount-olive-chamber-logo.png";
 
 export type ViewKey = "overview" | "directory" | "map" | "insights" | "engagement" | "actions";
 
@@ -26,8 +27,12 @@ export function Shell({
     <div className="min-h-screen bg-ink-950 text-slate-100">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-white/10 bg-ink-900/95 p-5 lg:block">
         <div className="mb-8">
-          <div className="text-sm font-semibold uppercase tracking-[0.24em] text-signal-teal">MOCOC</div>
-          <h1 className="mt-3 text-2xl font-semibold leading-tight">Chamber Engagement Command Center</h1>
+          <img
+            src={chamberLogo}
+            alt="Mount Olive Area Chamber of Commerce"
+            className="h-auto w-52"
+          />
+          <h1 className="mt-4 text-2xl font-semibold leading-tight">Chamber Engagement Command Center</h1>
           <p className="mt-2 text-sm text-slate-400">Internal analytics dashboard for member engagement and retention</p>
         </div>
         <nav className="space-y-2">
