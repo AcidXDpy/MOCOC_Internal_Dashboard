@@ -2,6 +2,7 @@ import { BarChart3, ClipboardList, LayoutDashboard, MapPinned, Search, Sparkles,
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import chamberLogo from "../assets/mount-olive-chamber-logo.png";
+import { lastUpdatedLabel } from "../utils/analytics";
 
 export type ViewKey = "overview" | "directory" | "map" | "insights" | "engagement" | "actions";
 
@@ -84,7 +85,7 @@ export function PageHeader({ title, description }: { title: string; description:
       </div>
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-400">
         <Search size={16} />
-        Phase 1 readiness view
+        Last updated {lastUpdatedLabel}
       </div>
     </header>
   );

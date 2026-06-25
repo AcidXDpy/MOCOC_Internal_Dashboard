@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { attendance, events, members, outreach } from "./data";
 import type { Member } from "./types";
-import { chartFromCounts, countBy, filterMembers, generateInsights, getAttendanceSummary, getMissingFields, getNewMembersByYear, getReadiness, getUpcomingRenewals, membersWithoutOutreach, unique } from "./utils/analytics";
-import { EmptyState, InsightCard, MetricCard, Panel, RiskLine, StatusBadge } from "./components/Cards";
+import { chartFromCounts, countBy, filterMembers, generateInsights, getAttendanceSummary, getDataCompletenessMetrics, getDataCompletenessScore, getMemberHealth, getMissingFields, getNewMembersByYear, getPilotCandidates, getPriorityAlerts, getReadiness, getRecommendedAction, getUpcomingRenewals, membersWithoutOutreach, unique } from "./utils/analytics";
+import { AlertCard, DemoBanner, EmptyState, InsightCard, MetricCard, Panel, ProgressLine, RiskLine, StatusBadge } from "./components/Cards";
 import { MemberMapView } from "./components/MemberMapView";
 import { PageHeader, Shell, type ViewKey } from "./components/Shell";
 
@@ -31,6 +31,8 @@ function Overview() {
   const upcoming = getUpcomingRenewals(members);
   const missingItems = members.reduce((sum, member) => sum + getMissingFields(member).length, 0);
   const readiness = getReadiness(members, events.length, attendance.length, outreach.length);
+  const alerts = getPriorityAlerts(members, attendance, outreach);
+  const completeness = getDataCompletenessMetrics(members, attendance.length, outreach.length);
 
   return (
     <>
@@ -38,6 +40,12 @@ function Overview() {
         title="Executive Overview"
         description="A leadership view of MOCOC member composition, data completeness, and readiness for future engagement and retention analytics."
       />
+      <DemoBanner />
+      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {alerts.map((alert) => (
+          <AlertCard key={alert.label} {...alert} />
+        ))}
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <MetricCard label="Total Members" value={members.length} detail="Loaded from the directory scrape" />
         <MetricCard label="Active Members" value={members.filter((m) => m.membership_status === "active").length} detail="Demo status assignments" tone="green" />
@@ -77,6 +85,18 @@ function Overview() {
           </p>
         </Panel>
       </div>
+      <div className="mt-6 grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
+        <Panel title="Data Completeness Dashboard">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {completeness.map((item) => (
+              <ProgressLine key={item.label} label={item.label} value={item.value} detail={item.detail} />
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Phase 2 Pilot Candidates">
+          <PilotCandidateList candidates={getPilotCandidates(members, attendance, outreach, 7)} />
+        </Panel>
+      </div>
     </>
   );
 }
@@ -110,6 +130,7 @@ function Directory() {
                   <th className="py-3 pr-4">Phone</th>
                   <th className="py-3 pr-4">Renewal</th>
                   <th className="py-3 pr-4">Status</th>
+                  <th className="py-3 pr-4">Health</th>
                   <th className="py-3 pr-4">Gaps</th>
                 </tr>
               </thead>
@@ -122,6 +143,7 @@ function Directory() {
                     <td className="py-3 pr-4 text-slate-400">{member.phone || "Missing"}</td>
                     <td className="py-3 pr-4 text-slate-400">{member.renewal_date}</td>
                     <td className="py-3 pr-4"><StatusBadge value={member.membership_status} /></td>
+                    <td className="py-3 pr-4"><StatusBadge value={getMemberHealth(member)} /></td>
                     <td className="py-3 pr-4 text-signal-amber">{getMissingFields(member).length}</td>
                   </tr>
                 ))}
@@ -142,6 +164,7 @@ function MapPage() {
   const [status, setStatus] = useState("");
   const filtered = filterMembers(members, query, industry, city, status);
   const mapped = filtered.filter((member) => member.latitude && member.longitude);
+  const unmapped = filtered.filter((member) => !member.latitude || !member.longitude);
   const cityCounts = chartFromCounts(countBy(filtered, (member) => member.city));
 
   return (
@@ -154,6 +177,21 @@ function MapPage() {
         <MetricCard label="Top City" value={cityCounts[0]?.name ?? "None"} detail={`${cityCounts[0]?.value ?? 0} filtered records`} />
       </div>
       <div className="mt-5"><MemberMapView members={filtered} /></div>
+      <div className="mt-5 grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
+        <Panel title="Map Legend">
+          <div className="grid gap-3 text-sm text-slate-300 sm:grid-cols-2">
+            {["active", "at-risk", "inactive", "prospect"].map((status) => (
+              <div key={status} className="flex items-center gap-3 rounded-lg bg-white/[0.035] p-3">
+                <span className={`map-pin ${status}`} />
+                <span className="capitalize">{status}</span>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Unmapped Members">
+          <CompactList members={unmapped.slice(0, 6)} empty="All filtered members are mapped." />
+        </Panel>
+      </div>
     </>
   );
 }
@@ -174,9 +212,20 @@ function Insights() {
         <Panel title="City Distribution"><ChartBars data={cityData} /></Panel>
         <Panel title="Zip Concentration"><ChartBars data={zipData} /></Panel>
       </div>
-      <Panel title="Renewals In The Next 60 Days">
-        <CompactList members={upcoming} empty="No renewals in the next 60 days." />
-      </Panel>
+      <div className="mt-6">
+        <Panel title="Renewals In The Next 60 Days">
+          <CompactList members={upcoming} empty="No renewals in the next 60 days." />
+        </Panel>
+      </div>
+      <div className="mt-6">
+        <Panel title="Data Completeness Signals">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {getDataCompletenessMetrics(members, attendance.length, outreach.length).map((item) => (
+              <ProgressLine key={item.label} label={item.label} value={item.value} detail={item.detail} />
+            ))}
+          </div>
+        </Panel>
+      </div>
     </>
   );
 }
@@ -214,6 +263,11 @@ function Engagement() {
           )}
         </Panel>
       </div>
+      <div className="mt-6">
+        <Panel title="Recommended 5-7 Business Engagement Pilot">
+          <PilotCandidateList candidates={getPilotCandidates(members, attendance, outreach, 7)} />
+        </Panel>
+      </div>
     </>
   );
 }
@@ -230,6 +284,11 @@ function Actions() {
   return (
     <>
       <PageHeader title="Action Center" description="Convert current data gaps into an operational cleanup list and Phase 2 engagement pilot checklist." />
+      <div className="mb-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {getPriorityAlerts(members, attendance, outreach).map((alert) => (
+          <AlertCard key={alert.label} {...alert} />
+        ))}
+      </div>
       <div className="grid gap-5 xl:grid-cols-3">
         <Panel title="Members Missing Email"><CompactList members={missingEmail.slice(0, 8)} empty="All records have email." /></Panel>
         <Panel title="Members Missing Website"><CompactList members={missingWebsite.slice(0, 8)} empty="All records have website." /></Panel>
@@ -238,16 +297,23 @@ function Actions() {
         <Panel title="Incomplete Records"><CompactList members={incomplete.slice(0, 8)} empty="No heavily incomplete records." /></Panel>
         <Panel title="No Follow-up Logged"><CompactList members={noOutreach.slice(0, 8)} empty="Every member has outreach." /></Panel>
       </div>
-      <Panel title="Phase 1 To Phase 2 Checklist">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {checklist.map((item, index) => (
-            <div key={item} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
-              <span className="text-xs font-semibold text-signal-teal">Step {index + 1}</span>
-              <p className="mt-2 font-medium text-white">{item}</p>
-            </div>
-          ))}
-        </div>
-      </Panel>
+      <div className="mt-6">
+        <Panel title="Phase 1 To Phase 2 Checklist">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {checklist.map((item, index) => (
+              <div key={item} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+                <span className="text-xs font-semibold text-signal-teal">Step {index + 1}</span>
+                <p className="mt-2 font-medium text-white">{item}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+      <div className="mt-6">
+        <Panel title="Pilot Candidate Shortlist">
+          <PilotCandidateList candidates={getPilotCandidates(members, attendance, outreach, 7)} />
+        </Panel>
+      </div>
     </>
   );
 }
@@ -293,6 +359,8 @@ function SortSelect({ sort, setSort }: { sort: keyof Member; setSort: (value: ke
 
 function MemberDetail({ member }: { member: Member }) {
   const missing = getMissingFields(member);
+  const completeness = getDataCompletenessScore(member);
+  const health = getMemberHealth(member);
   return (
     <Panel title="Member Detail">
       <div className="space-y-4">
@@ -300,7 +368,11 @@ function MemberDetail({ member }: { member: Member }) {
           <h3 className="text-xl font-semibold text-white">{member.business_name}</h3>
           <p className="mt-1 text-sm text-slate-400">{member.industry}</p>
         </div>
-        <StatusBadge value={member.membership_status} />
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={member.membership_status} />
+          <StatusBadge value={health} />
+        </div>
+        <ProgressLine label="Record completeness" value={completeness} detail="Preview score based on available directory fields" />
         <dl className="grid gap-3 text-sm">
           <Detail label="Address" value={`${member.address}, ${member.city}, ${member.state} ${member.zip_code}`} />
           <Detail label="Phone" value={member.phone || "Missing"} />
@@ -310,6 +382,13 @@ function MemberDetail({ member }: { member: Member }) {
         </dl>
         <p className="text-sm leading-6 text-slate-300">{member.notes}</p>
         {missing.length ? <RiskLine text={`Missing fields: ${missing.join(", ")}`} /> : null}
+        <div className="rounded-lg border border-signal-blue/20 bg-signal-blue/[0.08] p-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-signal-blue">Recommended next action</p>
+          <p className="mt-2 text-sm leading-6 text-slate-200">{getRecommendedAction(member)}</p>
+          <button className="mt-3 rounded-lg border border-white/10 bg-white/[0.06] px-3 py-2 text-sm text-white transition hover:bg-white/[0.1]">
+            Add to pilot list
+          </button>
+        </div>
       </div>
     </Panel>
   );
@@ -335,6 +414,38 @@ function CompactList({ members, empty }: { members: Member[]; empty: string }) {
             <p className="text-slate-500">{member.city} - {member.industry}</p>
           </div>
           <span className="text-xs text-slate-400">{member.renewal_date}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PilotCandidateList({ candidates }: { candidates: ReturnType<typeof getPilotCandidates> }) {
+  if (!candidates.length) {
+    return <EmptyState title="No pilot candidates yet" description="Candidates will appear once renewal, outreach, and attendance signals are available." />;
+  }
+
+  return (
+    <div className="space-y-3">
+      {candidates.map(({ member, reasons, score }, index) => (
+        <div key={member.member_id} className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-signal-teal">Candidate {index + 1}</p>
+              <h4 className="mt-1 font-semibold text-white">{member.business_name}</h4>
+              <p className="mt-1 text-sm text-slate-400">{member.city} - {member.industry}</p>
+            </div>
+            <div className="rounded-full bg-signal-blue/[0.12] px-3 py-1 text-xs font-medium text-signal-blue">
+              Priority {score}
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {reasons.map((reason) => (
+              <span key={reason} className="rounded-full bg-white/[0.06] px-2.5 py-1 text-xs text-slate-300">
+                {reason}
+              </span>
+            ))}
+          </div>
         </div>
       ))}
     </div>

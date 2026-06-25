@@ -16,6 +16,22 @@ export function MetricCard({ label, value, detail, tone = "blue" }: { label: str
   );
 }
 
+export function AlertCard({ label, value, detail, tone = "blue" }: { label: string; value: string | number; detail: string; tone?: "blue" | "green" | "amber" | "red" }) {
+  const tones = {
+    blue: "border-signal-blue/25 bg-signal-blue/[0.08] text-signal-blue",
+    green: "border-signal-green/25 bg-signal-green/[0.08] text-signal-green",
+    amber: "border-signal-amber/25 bg-signal-amber/[0.08] text-signal-amber",
+    red: "border-signal-red/25 bg-signal-red/[0.08] text-signal-red",
+  };
+  return (
+    <div className={`rounded-lg border p-4 ${tones[tone]}`}>
+      <div className="text-2xl font-semibold">{value}</div>
+      <p className="mt-1 text-sm font-medium text-white">{label}</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">{detail}</p>
+    </div>
+  );
+}
+
 export function Panel({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <section className="rounded-lg border border-white/10 bg-white/[0.035] p-5">
@@ -25,6 +41,30 @@ export function Panel({ title, children, action }: { title: string; children: Re
       </div>
       {children}
     </section>
+  );
+}
+
+export function ProgressLine({ label, value, detail }: { label: string; value: number; detail?: string }) {
+  const tone = value >= 75 ? "bg-signal-green" : value >= 40 ? "bg-signal-amber" : "bg-signal-red";
+  return (
+    <div className="rounded-lg bg-white/[0.035] p-3">
+      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
+        <span className="font-medium text-white">{label}</span>
+        <span className="text-slate-300">{value}%</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-white/10">
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${value}%` }} />
+      </div>
+      {detail ? <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p> : null}
+    </div>
+  );
+}
+
+export function DemoBanner() {
+  return (
+    <div className="mb-6 rounded-lg border border-signal-teal/25 bg-signal-teal/[0.08] px-4 py-3 text-sm leading-6 text-slate-200">
+      <span className="font-semibold text-signal-teal">Phase 1 prototype:</span> using the current directory scrape with visible placeholders where structured engagement, renewal, and outreach data still needs to be collected.
+    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import type { Attendance, Member, Outreach } from "../types";
 
-export const today = new Date("2026-06-18T12:00:00");
+export const today = new Date("2026-06-25T12:00:00");
+export const lastUpdatedLabel = "June 25, 2026";
 
 export function unique<T>(items: T[]) {
   return Array.from(new Set(items));
@@ -30,6 +31,88 @@ export function getMissingFields(member: Member) {
   ]
     .filter(([, value]) => !value)
     .map(([field]) => field);
+}
+
+export function getDataCompletenessScore(member: Member) {
+  const requiredFields = [
+    member.business_name,
+    member.industry,
+    member.address,
+    member.city,
+    member.phone,
+    member.website,
+    member.email,
+    member.latitude && member.longitude ? "coordinates" : "",
+  ];
+  const complete = requiredFields.filter(Boolean).length;
+  return Math.round((complete / requiredFields.length) * 100);
+}
+
+export function getMemberHealth(member: Member) {
+  const score = getDataCompletenessScore(member);
+  if (member.membership_status === "at-risk" || member.membership_status === "inactive") return "At Risk";
+  if (score < 55) return "Needs Data";
+  if (!member.email || !member.website) return "Engagement Unknown";
+  return "Healthy";
+}
+
+export function getRecommendedAction(member: Member) {
+  const missing = getMissingFields(member);
+  if (member.membership_status === "at-risk" || member.membership_status === "inactive") return "Prioritize outreach before renewal conversation.";
+  if (missing.includes("email")) return "Collect a direct email contact for campaign and renewal tracking.";
+  if (missing.includes("coordinates")) return "Verify address and geocode for territory analysis.";
+  if (missing.includes("website")) return "Add website to improve public-facing referral readiness.";
+  return "Keep record current and invite to the next engagement touchpoint.";
+}
+
+export function getDataCompletenessMetrics(members: Member[], attendanceCount: number, outreachCount: number) {
+  const percent = (count: number) => Math.round((count / Math.max(members.length, 1)) * 100);
+  return [
+    { label: "Contact phone coverage", value: percent(members.filter((member) => member.phone).length), detail: "Members with a phone number" },
+    { label: "Email readiness", value: percent(members.filter((member) => member.email).length), detail: "Members with an email address" },
+    { label: "Website coverage", value: percent(members.filter((member) => member.website).length), detail: "Members with a website link" },
+    { label: "Map readiness", value: percent(members.filter((member) => member.latitude && member.longitude).length), detail: "Members with coordinates" },
+    { label: "Attendance tracking", value: attendanceCount ? 100 : 0, detail: `${attendanceCount} attendance rows loaded` },
+    { label: "Outreach tracking", value: outreachCount ? 100 : 0, detail: `${outreachCount} outreach rows loaded` },
+  ];
+}
+
+export function getPilotCandidates(members: Member[], attendance: Attendance[], outreach: Outreach[], limit = 7) {
+  const attended = new Set(attendance.filter((item) => item.attended).map((item) => item.member_id));
+  const contacted = new Set(outreach.map((item) => item.member_id));
+  const upcoming = new Set(getUpcomingRenewals(members, 120).map((member) => member.member_id));
+
+  return members
+    .map((member) => {
+      const missing = getMissingFields(member);
+      const reasons = [
+        member.membership_status === "at-risk" ? "at-risk status" : "",
+        member.membership_status === "inactive" ? "inactive status" : "",
+        upcoming.has(member.member_id) ? "renewal approaching" : "",
+        !attended.has(member.member_id) ? "no attendance history" : "",
+        !contacted.has(member.member_id) ? "no outreach logged" : "",
+        missing.length >= 3 ? "incomplete record" : "",
+      ].filter(Boolean);
+      const score = reasons.length * 10 + missing.length * 2 + (upcoming.has(member.member_id) ? 8 : 0);
+      return { member, reasons, score };
+    })
+    .filter((candidate) => candidate.reasons.length > 0)
+    .sort((a, b) => b.score - a.score || a.member.business_name.localeCompare(b.member.business_name))
+    .slice(0, limit);
+}
+
+export function getPriorityAlerts(members: Member[], attendance: Attendance[], outreach: Outreach[]) {
+  const missingEmail = members.filter((member) => !member.email).length;
+  const upcoming = getUpcomingRenewals(members, 60).length;
+  const missingCoordinates = members.filter((member) => !member.latitude || !member.longitude).length;
+  const pilotCandidates = getPilotCandidates(members, attendance, outreach, 7).length;
+
+  return [
+    { label: "Missing email", value: missingEmail, detail: "blocks direct engagement campaigns", tone: "red" as const },
+    { label: "60-day renewals", value: upcoming, detail: "need proactive outreach", tone: "amber" as const },
+    { label: "Missing coordinates", value: missingCoordinates, detail: "need map cleanup", tone: "amber" as const },
+    { label: "Pilot candidates", value: pilotCandidates, detail: "ready for Phase 2 review", tone: "blue" as const },
+  ];
 }
 
 export function getUpcomingRenewals(members: Member[], days = 90) {
