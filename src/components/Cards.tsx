@@ -62,8 +62,8 @@ export function ProgressLine({ label, value, detail }: { label: string; value: n
 
 export function DemoBanner() {
   return (
-    <div className="mb-6 rounded-lg border border-signal-teal/25 bg-signal-teal/[0.08] px-4 py-3 text-sm leading-6 text-slate-200">
-      <span className="font-semibold text-signal-teal">Public data snapshot:</span> member listings come from the live Chamber directory; renewal, contact, outreach, and attendance fields remain clearly labeled placeholders until official Chamber exports are available.
+    <div className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs leading-5 text-slate-300">
+      <span className="font-semibold text-slate-100">Data status:</span> current analysis is based on the latest public Chamber directory snapshot. Attendance and outreach metrics will populate when those records are added.
     </div>
   );
 }
@@ -80,8 +80,8 @@ export function EmptyState({ title, description }: { title: string; description:
 
 export function StatusBadge({ value }: { value: string }) {
   const normalized = value.toLowerCase();
-  const healthy = normalized === "active" || normalized.includes("available") || normalized.includes("strong");
-  const risky = normalized.includes("risk") || normalized.includes("missing") || normalized.includes("needs") || normalized === "inactive";
+  const healthy = normalized === "active" || normalized.includes("available") || normalized.includes("strong") || normalized.includes("complete") || normalized.includes("listed");
+  const risky = normalized.includes("missing") || normalized.includes("needs") || normalized.includes("past due") || normalized === "inactive";
   const cls = healthy
     ? "bg-signal-green/[0.12] text-signal-green ring-signal-green/25"
     : risky

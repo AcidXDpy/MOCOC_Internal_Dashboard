@@ -1,28 +1,31 @@
-# Chamber Engagement Command Center
+# Mount Olive Chamber Analytics
 
-Internal analytics dashboard for the Mount Olive Area Chamber of Commerce member base.
+Member Intelligence & Outreach Platform for the Mount Olive Area Chamber of Commerce.
 
 ## Purpose
 
-This MVP helps Chamber leadership see the current member directory clearly, identify missing member data, and prepare for future engagement and retention analytics.
+This application converts public Chamber directory data into a practical internal analytics system for membership review, renewal follow-up, outreach prioritization, geographic analysis, and data-quality management.
 
-The Chamber problem this project is aimed at:
+The platform is designed to help Chamber staff answer operational questions:
 
-- Members do not always engage or attend events.
-- Low event participation means members may not experience Chamber value.
-- Members who do not see value are more likely to become dissatisfied or not renew.
-- Chamber leadership needs cleaner data before engagement, outreach, and churn-risk analysis can be meaningful.
+- Which member records need renewal follow-up?
+- Which listings are contactable today?
+- Where is the member base geographically concentrated?
+- Which industries and communities are most represented?
+- What data must be cleaned up before attendance, outreach, and retention analytics are reliable?
 
-## Phase 1 MVP
+## Current Modules
 
-The app is an internal dashboard, not a public website or member portal. It includes:
+- Overview
+- Members
+- Map
+- Insights
+- Outreach
+- Data Quality
+- Methodology
+- Public-safe project overview at `/project`
 
-- Executive Overview
-- Member Directory
-- Member Map
-- Chamber Insights
-- Engagement Preparation
-- Action Center
+## Data Sources
 
 The current member dataset is normalized from the public Mount Olive Area Chamber/Membee directory. It includes 116 unique public listings as of July 16, 2026. Public fields include business names, categories, descriptions, addresses, phone numbers, websites, and map coordinates when exposed by the directory.
 
@@ -31,15 +34,18 @@ The app also includes local economic context from public sources:
 - ACS 2024 5-year indicators for Mount Olive township via Census Reporter, using U.S. Census Bureau data.
 - U.S. Census Bureau 2023 County Business Patterns for Morris County employer establishments, employment, and payroll by sector.
 
-Fields such as email, contact names, renewal dates, membership start dates, and internal member status are still synthetic placeholders until the Chamber provides official exports. The dashboard surfaces those gaps instead of treating them as verified facts.
+Fields such as email, contact names, renewal dates, membership start dates, and internal member status are still synthetic placeholders until the Chamber provides official exports. The UI labels these limitations and does not treat them as verified facts.
 
-## Roadmap
+## Methodology
 
-Phase 1: Internal Chamber-facing dashboard and member data cleanup.
+Current scoring is deterministic and transparent:
 
-Phase 2: Engagement pilot with 5-7 inactive or at-risk businesses using attendance and outreach tracking.
+- Profile completeness is based on available public fields.
+- Renewal urgency is based on the renewal-date field.
+- Outreach priority uses renewal timing, missing contact fields, website coverage, mapping coverage, and outreach-log availability.
+- Data Quality Score weights phone, website, map, industry, and renewal-date coverage.
 
-Phase 3: Impact report, public narrative, and media coverage based on measurable engagement results.
+The app does not train or claim a predictive retention-risk model because labeled renewal outcomes and engagement history are not yet available.
 
 ## Tech Stack
 
@@ -51,7 +57,7 @@ Phase 3: Impact report, public narrative, and media coverage based on measurable
 - React Leaflet / Leaflet
 - Local TypeScript public-data snapshots and clearly labeled synthetic placeholders
 
-No backend, authentication, payments, or production database are included in this MVP.
+No backend, authentication, payments, or production database are included in this version.
 
 ## Run Locally
 
@@ -68,4 +74,25 @@ Build for production:
 npm run build
 ```
 
-Note: during initial setup on this machine, the bundled `node` command was blocked through the app PATH and `npm` was not available globally. Installing Node.js from the official installer or repairing PATH should resolve that for normal local development.
+Run checks:
+
+```bash
+npm test
+```
+
+## Deployment
+
+The app is a Vite single-page application. Vercel should use:
+
+- Framework preset: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+
+The included `vercel.json` rewrites direct route visits such as `/project` back to the SPA entry point.
+
+## Known Limitations
+
+- Public directory data is not the same as an official internal Chamber roster.
+- Attendance, outreach, renewal history, and staff notes require official Chamber exports or a future database.
+- Renewal dates and member lifecycle fields are placeholders until verified source data exists.
+- Sector benchmarking maps Chamber categories to broad NAICS-style sectors for descriptive comparison only.
