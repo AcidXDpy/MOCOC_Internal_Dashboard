@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { attendance, events, members, outreach } from "./data";
+import { attendance, countyBusinessPatterns, events, localDemographics, members, outreach, publicDataNotes } from "./data";
 import type { Member } from "./types";
-import { chartFromCounts, countBy, filterMembers, generateInsights, getAttendanceSummary, getDataCompletenessMetrics, getDataCompletenessScore, getMemberHealth, getMissingFields, getNewMembersByYear, getPilotCandidates, getPriorityAlerts, getReadiness, getRecommendedAction, getUpcomingRenewals, membersWithoutOutreach, unique } from "./utils/analytics";
+import { chartFromCounts, countBy, filterMembers, generateInsights, getAttendanceSummary, getChamberSectorBenchmarks, getDataCompletenessMetrics, getDataCompletenessScore, getMemberHealth, getMissingFields, getNewMembersByYear, getPilotCandidates, getPriorityAlerts, getReadiness, getRealBusinessInsights, getRecommendedAction, getSourceCoverage, getUpcomingRenewals, membersWithoutOutreach, unique } from "./utils/analytics";
 import { AlertCard, DemoBanner, EmptyState, InsightCard, MetricCard, Panel, ProgressLine, RiskLine, StatusBadge } from "./components/Cards";
 import { MemberMapView } from "./components/MemberMapView";
 import { PageHeader, Shell, type ViewKey } from "./components/Shell";
@@ -48,7 +48,7 @@ function Overview() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <MetricCard label="Total Members" value={members.length} detail="Loaded from the directory scrape" />
-        <MetricCard label="Active Members" value={members.filter((m) => m.membership_status === "active").length} detail="Demo status assignments" tone="green" />
+        <MetricCard label="Active Listings" value={members.filter((m) => m.membership_status === "active").length} detail="Public directory listings, not an internal roster audit" tone="green" />
         <MetricCard label="Unique Industries" value={unique(members.map((m) => m.industry)).length} detail="Directory categories represented" />
         <MetricCard label="Cities Represented" value={unique(members.map((m) => m.city)).length} detail="Demo geocoding coverage" />
         <MetricCard label="Upcoming Renewals" value={upcoming.length} detail="Next 90 days" tone="amber" />
@@ -95,6 +95,26 @@ function Overview() {
         </Panel>
         <Panel title="Phase 2 Pilot Candidates">
           <PilotCandidateList candidates={getPilotCandidates(members, attendance, outreach, 7)} />
+        </Panel>
+      </div>
+      <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_1.1fr]">
+        <Panel title="Public Data Coverage">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {getSourceCoverage(members).map((item) => (
+              <ProgressLine key={item.label} label={item.label} value={item.value} detail={item.detail} />
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Local Economic Context">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {localDemographics.metrics.slice(0, 4).map((metric) => (
+              <div key={metric.label} className="rounded-lg bg-white/[0.035] p-3">
+                <p className="text-xs uppercase tracking-wider text-slate-500">{metric.label}</p>
+                <p className="mt-2 text-2xl font-semibold text-white">{metric.formatted}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-400">{metric.detail}</p>
+              </div>
+            ))}
+          </div>
         </Panel>
       </div>
     </>
@@ -201,16 +221,45 @@ function Insights() {
   const cityData = chartFromCounts(countBy(members, (member) => member.city));
   const zipData = chartFromCounts(countBy(members, (member) => member.zip_code));
   const upcoming = getUpcomingRenewals(members, 60);
+  const sectorBenchmarks = getChamberSectorBenchmarks(members);
   return (
     <>
-      <PageHeader title="Chamber Insights" description="Data-supported observations about member composition, concentration, renewals, and missing fields." />
+      <PageHeader title="Chamber Insights" description="Data-supported observations about member composition, public-data coverage, and the local economic context." />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {generateInsights(members).map((insight) => <InsightCard key={insight} text={insight} />)}
+      </div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {getRealBusinessInsights(members).map((insight) => <InsightCard key={insight} text={insight} />)}
       </div>
       <div className="mt-6 grid gap-5 xl:grid-cols-3">
         <Panel title="Industry Distribution"><ChartBars data={industryData} /></Panel>
         <Panel title="City Distribution"><ChartBars data={cityData} /></Panel>
         <Panel title="Zip Concentration"><ChartBars data={zipData} /></Panel>
+      </div>
+      <div className="mt-6 grid gap-5 xl:grid-cols-[1fr_1.25fr]">
+        <Panel title="ACS Local Market Indicators">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {localDemographics.metrics.map((metric) => (
+              <div key={metric.label} className="rounded-lg bg-white/[0.035] p-3">
+                <p className="text-xs uppercase tracking-wider text-slate-500">{metric.label}</p>
+                <p className="mt-2 text-xl font-semibold text-white">{metric.formatted}</p>
+                <p className="mt-1 text-xs leading-5 text-slate-400">{metric.detail}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+        <Panel title="Chamber Mix vs Morris County Employers">
+          <BenchmarkTable rows={sectorBenchmarks.slice(0, 10)} />
+        </Panel>
+      </div>
+      <div className="mt-6">
+        <Panel title="Morris County Employer Base">
+          <div className="grid gap-4 md:grid-cols-3">
+            <MetricCard label="Employer establishments" value={countyBusinessPatterns.total.establishments.toLocaleString()} detail="2023 County Business Patterns" />
+            <MetricCard label="Paid employment" value={countyBusinessPatterns.total.employment.toLocaleString()} detail="Employees during March 12 pay period" />
+            <MetricCard label="Annual payroll" value={`$${Math.round(countyBusinessPatterns.total.annualPayrollThousand / 1000).toLocaleString()}M`} detail="2023 payroll, rounded" />
+          </div>
+        </Panel>
       </div>
       <div className="mt-6">
         <Panel title="Renewals In The Next 60 Days">
@@ -222,6 +271,15 @@ function Insights() {
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {getDataCompletenessMetrics(members, attendance.length, outreach.length).map((item) => (
               <ProgressLine key={item.label} label={item.label} value={item.value} detail={item.detail} />
+            ))}
+          </div>
+        </Panel>
+      </div>
+      <div className="mt-6">
+        <Panel title="Data Source Notes">
+          <div className="space-y-2">
+            {publicDataNotes.map((note) => (
+              <RiskLine key={note} text={note} />
             ))}
           </div>
         </Panel>
@@ -416,6 +474,40 @@ function CompactList({ members, empty }: { members: Member[]; empty: string }) {
           <span className="text-xs text-slate-400">{member.renewal_date}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function BenchmarkTable({ rows }: { rows: ReturnType<typeof getChamberSectorBenchmarks> }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-white/10 text-sm">
+        <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
+          <tr>
+            <th className="py-3 pr-4">Sector</th>
+            <th className="py-3 pr-4">Members</th>
+            <th className="py-3 pr-4">Chamber</th>
+            <th className="py-3 pr-4">County</th>
+            <th className="py-3 pr-4">Gap</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-white/10">
+          {rows.map((row) => (
+            <tr key={row.name}>
+              <td className="max-w-[260px] py-3 pr-4 font-medium text-white">{row.name}</td>
+              <td className="py-3 pr-4 text-slate-300">{row.chamberMembers}</td>
+              <td className="py-3 pr-4 text-slate-300">{row.chamberShare}%</td>
+              <td className="py-3 pr-4 text-slate-300">{row.countyShare}%</td>
+              <td className={`py-3 pr-4 ${row.representationGap >= 0 ? "text-signal-green" : "text-signal-amber"}`}>
+                {row.representationGap > 0 ? "+" : ""}{row.representationGap} pts
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-3 text-xs leading-5 text-slate-500">
+        Chamber categories are mapped to broad NAICS-style sectors for comparison. This is descriptive, not a formal industry classification.
+      </p>
     </div>
   );
 }

@@ -18,6 +18,9 @@ export interface Member {
   notes: string;
   latitude: number | null;
   longitude: number | null;
+  data_source?: "public_directory" | "synthetic_demo" | "manual";
+  source_url?: string;
+  synthetic_fields?: string[];
 }
 
 export interface ChamberEvent {

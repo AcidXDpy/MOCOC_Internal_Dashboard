@@ -1,4 +1,5 @@
 import type { Attendance, Member, Outreach } from "../types";
+import { countyBusinessPatterns } from "../data/localEconomy";
 
 export const today = new Date("2026-06-25T12:00:00");
 export const lastUpdatedLabel = "June 25, 2026";
@@ -185,4 +186,64 @@ export function getAttendanceSummary(members: Member[], attendance: Attendance[]
 export function membersWithoutOutreach(members: Member[], outreach: Outreach[]) {
   const contacted = new Set(outreach.map((item) => item.member_id));
   return members.filter((member) => !contacted.has(member.member_id));
+}
+
+export function getSourceCoverage(members: Member[]) {
+  const pct = (count: number) => Math.round((count / Math.max(members.length, 1)) * 100);
+  const synthetic = members.reduce((sum, member) => sum + (member.synthetic_fields?.length ?? 0), 0);
+  return [
+    { label: "Public directory records", value: pct(members.filter((member) => member.data_source === "public_directory").length), detail: `${members.length} live member listings loaded` },
+    { label: "Website coverage", value: pct(members.filter((member) => member.website).length), detail: "From public directory map/listing data" },
+    { label: "Coordinate coverage", value: pct(members.filter((member) => member.latitude && member.longitude).length), detail: "From public directory map data" },
+    { label: "Synthetic field load", value: Math.min(100, Math.round(synthetic / Math.max(members.length * 5, 1) * 100)), detail: `${synthetic} placeholder fields awaiting official exports` },
+  ];
+}
+
+export function mapIndustryToSector(industry: string) {
+  const value = industry.toLowerCase();
+  if (value.includes("health") || value.includes("wellness") || value.includes("family wellness") || value.includes("care")) return "Health care and social assistance";
+  if (value.includes("real estate") || value.includes("mortgage")) return "Real estate and rental and leasing";
+  if (value.includes("restaurant") || value.includes("food") || value.includes("brewery") || value.includes("catering") || value.includes("venue")) return "Accommodation and food services";
+  if (value.includes("financial") || value.includes("bank") || value.includes("insurance") || value.includes("accounting") || value.includes("cpa")) return "Finance and insurance";
+  if (value.includes("consult") || value.includes("marketing") || value.includes("advertising") || value.includes("architect") || value.includes("legal") || value.includes("technology") || value.includes("staffing") || value.includes("media") || value.includes("photography") || value.includes("videography")) return "Professional, scientific, and technical services";
+  if (value.includes("home") || value.includes("plumbing") || value.includes("landscaping") || value.includes("construction") || value.includes("inspection") || value.includes("pest")) return "Construction";
+  if (value.includes("shopping") || value.includes("hardware") || value.includes("jewelry") || value.includes("automotive") || value.includes("car wash")) return "Retail trade";
+  if (value.includes("manufacturing") || value.includes("trailer")) return "Manufacturing";
+  if (value.includes("transport") || value.includes("travel") || value.includes("moving") || value.includes("storage")) return "Transportation and warehousing";
+  if (value.includes("education") || value.includes("college") || value.includes("tutor")) return "Educational services";
+  if (value.includes("non-profit") || value.includes("community")) return "Other services";
+  return "Other services";
+}
+
+export function getChamberSectorBenchmarks(members: Member[]) {
+  const chamber = chartFromCounts(countBy(members, (member) => mapIndustryToSector(member.industry)));
+  return chamber.map((item) => {
+    const county = countyBusinessPatterns.sectors.find((sector) => sector.label === item.name);
+    const chamberShare = Math.round((item.value / Math.max(members.length, 1)) * 1000) / 10;
+    const countyShare = county ? Math.round((county.establishments / countyBusinessPatterns.total.establishments) * 1000) / 10 : 0;
+    return {
+      name: item.name,
+      chamberMembers: item.value,
+      chamberShare,
+      countyEstablishments: county?.establishments ?? 0,
+      countyShare,
+      representationGap: Math.round((chamberShare - countyShare) * 10) / 10,
+    };
+  }).sort((a, b) => b.chamberMembers - a.chamberMembers);
+}
+
+export function getRealBusinessInsights(members: Member[]) {
+  const sectors = getChamberSectorBenchmarks(members);
+  const top = sectors[0];
+  const under = sectors.filter((sector) => sector.countyShare > 0).sort((a, b) => a.representationGap - b.representationGap)[0];
+  const over = sectors.filter((sector) => sector.countyShare > 0).sort((a, b) => b.representationGap - a.representationGap)[0];
+  const missingWebsite = members.filter((member) => !member.website).length;
+  const mapped = members.filter((member) => member.latitude && member.longitude).length;
+
+  return [
+    `${top?.name ?? "Unknown"} is the largest Chamber sector mapping with ${top?.chamberMembers ?? 0} public member listings.`,
+    under ? `${under.name} appears underrepresented against Morris County employer patterns by ${Math.abs(under.representationGap)} percentage points.` : "County benchmark coverage is limited for some Chamber categories.",
+    over ? `${over.name} is more concentrated in Chamber membership than in Morris County employer establishments by ${over.representationGap} percentage points.` : "No overrepresentation signal is available.",
+    `${mapped} of ${members.length} public listings include coordinates; ${missingWebsite} listings are missing a website in the public directory.`,
+  ];
 }

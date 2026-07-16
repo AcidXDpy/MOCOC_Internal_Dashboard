@@ -63,7 +63,7 @@ export function ProgressLine({ label, value, detail }: { label: string; value: n
 export function DemoBanner() {
   return (
     <div className="mb-6 rounded-lg border border-signal-teal/25 bg-signal-teal/[0.08] px-4 py-3 text-sm leading-6 text-slate-200">
-      <span className="font-semibold text-signal-teal">Phase 1 prototype:</span> using the current directory scrape with visible placeholders where structured engagement, renewal, and outreach data still needs to be collected.
+      <span className="font-semibold text-signal-teal">Public data snapshot:</span> member listings come from the live Chamber directory; renewal, contact, outreach, and attendance fields remain clearly labeled placeholders until official Chamber exports are available.
     </div>
   );
 }

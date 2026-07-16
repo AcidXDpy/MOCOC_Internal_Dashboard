@@ -24,7 +24,14 @@ The app is an internal dashboard, not a public website or member portal. It incl
 - Engagement Preparation
 - Action Center
 
-The current dataset is normalized from the provided MOCOC directory scrape. The scrape contains member names, categories, descriptions, addresses, and some phone numbers. Fields such as email, contact names, renewal details, and exact coordinates are incomplete or demo-derived, so the dashboard intentionally surfaces those gaps as readiness signals.
+The current member dataset is normalized from the public Mount Olive Area Chamber/Membee directory. It includes 116 unique public listings as of July 16, 2026. Public fields include business names, categories, descriptions, addresses, phone numbers, websites, and map coordinates when exposed by the directory.
+
+The app also includes local economic context from public sources:
+
+- ACS 2024 5-year indicators for Mount Olive township via Census Reporter, using U.S. Census Bureau data.
+- U.S. Census Bureau 2023 County Business Patterns for Morris County employer establishments, employment, and payroll by sector.
+
+Fields such as email, contact names, renewal dates, membership start dates, and internal member status are still synthetic placeholders until the Chamber provides official exports. The dashboard surfaces those gaps instead of treating them as verified facts.
 
 ## Roadmap
 
@@ -42,7 +49,7 @@ Phase 3: Impact report, public narrative, and media coverage based on measurable
 - Tailwind CSS
 - Recharts
 - React Leaflet / Leaflet
-- Local TypeScript mock data
+- Local TypeScript public-data snapshots and clearly labeled synthetic placeholders
 
 No backend, authentication, payments, or production database are included in this MVP.
 
