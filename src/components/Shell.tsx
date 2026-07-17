@@ -44,8 +44,8 @@ export function Shell({
             return (
               <button
                 key={item.key}
-                className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-signal-blue/50 ${
-                  active ? "bg-white/[0.08] text-white ring-1 ring-white/10" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-signal-teal/50 ${
+                  active ? "bg-signal-teal/[0.12] text-white ring-1 ring-signal-teal/25" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
                 }`}
                 onClick={() => setActiveView(item.key)}
               >
@@ -62,7 +62,7 @@ export function Shell({
             {navItems.map((item) => (
               <button
                 key={item.key}
-                className={`shrink-0 rounded-md px-3 py-2 text-xs ${activeView === item.key ? "bg-signal-blue text-ink-950" : "bg-white/10 text-slate-300"}`}
+                className={`shrink-0 rounded-md px-3 py-2 text-xs ${activeView === item.key ? "bg-signal-teal text-ink-950" : "bg-white/10 text-slate-300"}`}
                 onClick={() => setActiveView(item.key)}
               >
                 {item.label}
@@ -70,7 +70,12 @@ export function Shell({
             ))}
           </div>
         </div>
-        <div className="px-4 py-6 sm:px-6 lg:px-7 xl:px-8">{children}</div>
+        <div className="px-4 py-6 sm:px-6 lg:px-7 xl:px-8">
+          {children}
+          <footer className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-slate-500">
+            Developed by Nakul Ramprasad
+          </footer>
+        </div>
       </main>
     </div>
   );

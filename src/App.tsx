@@ -29,7 +29,7 @@ import { AlertCard, DemoBanner, EmptyState, InsightCard, MetricCard, Panel, Prog
 import { MemberMapView } from "./components/MemberMapView";
 import { PageHeader, Shell, type ViewKey } from "./components/Shell";
 
-const palette = ["#4ea8ff", "#2dd4bf", "#39d98a", "#f59e0b", "#fb7185", "#a78bfa", "#94a3b8"];
+const palette = ["#9bc53d", "#d7a84f", "#7aa7c7", "#fb7185", "#a3b18a", "#c9ada7", "#94a3b8"];
 const pageSize = 25;
 
 type MemberFilters = {
@@ -746,7 +746,7 @@ function ChartBars({ data }: { data: { name: string; value: number }[] }) {
           <XAxis type="number" stroke="#94a3b8" />
           <YAxis type="category" width={132} dataKey="name" stroke="#94a3b8" tick={{ fontSize: 11 }} />
           <Tooltip cursor={{ fill: "rgba(255,255,255,.06)" }} contentStyle={{ background: "#0f1d2b", border: "1px solid rgba(255,255,255,.12)", color: "#fff" }} />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#4ea8ff" />
+          <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#9bc53d" />
         </BarChart>
       </ResponsiveContainer>
     </div>
