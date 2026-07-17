@@ -1,0 +1,5 @@
+dist
+node_modules
+src/data/members.ts
+src/data/raw-directory-source.txt
+data/cache

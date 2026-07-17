@@ -1,6 +1,16 @@
 import { AlertTriangle, CheckCircle2, CircleDashed } from "lucide-react";
 
-export function MetricCard({ label, value, detail, tone = "blue" }: { label: string; value: string | number; detail: string; tone?: "blue" | "green" | "amber" | "red" }) {
+export function MetricCard({
+  label,
+  value,
+  detail,
+  tone = "blue",
+}: {
+  label: string;
+  value: string | number;
+  detail: string;
+  tone?: "blue" | "green" | "amber" | "red";
+}) {
   const tones = {
     blue: "text-signal-blue",
     green: "text-signal-green",
@@ -10,13 +20,25 @@ export function MetricCard({ label, value, detail, tone = "blue" }: { label: str
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 shadow-glow">
       <p className="text-sm text-slate-400">{label}</p>
-      <div className={`mt-3 text-3xl font-semibold ${tones[tone]}`}>{value}</div>
+      <div className={`mt-3 text-3xl font-semibold ${tones[tone]}`}>
+        {value}
+      </div>
       <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p>
     </div>
   );
 }
 
-export function AlertCard({ label, value, detail, tone = "blue" }: { label: string; value: string | number; detail: string; tone?: "blue" | "green" | "amber" | "red" }) {
+export function AlertCard({
+  label,
+  value,
+  detail,
+  tone = "blue",
+}: {
+  label: string;
+  value: string | number;
+  detail: string;
+  tone?: "blue" | "green" | "amber" | "red";
+}) {
   const tones = {
     blue: "border-signal-blue/25 bg-signal-blue/[0.08] text-signal-blue",
     green: "border-signal-green/25 bg-signal-green/[0.08] text-signal-green",
@@ -32,7 +54,15 @@ export function AlertCard({ label, value, detail, tone = "blue" }: { label: stri
   );
 }
 
-export function Panel({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
+export function Panel({
+  title,
+  children,
+  action,
+}: {
+  title: string;
+  children: React.ReactNode;
+  action?: React.ReactNode;
+}) {
   return (
     <section className="rounded-lg border border-white/10 bg-white/[0.035] p-5">
       <div className="mb-4 flex items-center justify-between gap-3">
@@ -44,8 +74,21 @@ export function Panel({ title, children, action }: { title: string; children: Re
   );
 }
 
-export function ProgressLine({ label, value, detail }: { label: string; value: number; detail?: string }) {
-  const tone = value >= 75 ? "bg-signal-green" : value >= 40 ? "bg-signal-amber" : "bg-signal-red";
+export function ProgressLine({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: number;
+  detail?: string;
+}) {
+  const tone =
+    value >= 75
+      ? "bg-signal-green"
+      : value >= 40
+        ? "bg-signal-amber"
+        : "bg-signal-red";
   return (
     <div className="rounded-lg bg-white/[0.035] p-3">
       <div className="mb-2 flex items-center justify-between gap-3 text-sm">
@@ -53,9 +96,14 @@ export function ProgressLine({ label, value, detail }: { label: string; value: n
         <span className="text-slate-300">{value}%</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10">
-        <div className={`h-full rounded-full ${tone}`} style={{ width: `${value}%` }} />
+        <div
+          className={`h-full rounded-full ${tone}`}
+          style={{ width: `${value}%` }}
+        />
       </div>
-      {detail ? <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p> : null}
+      {detail ? (
+        <p className="mt-2 text-xs leading-5 text-slate-500">{detail}</p>
+      ) : null}
     </div>
   );
 }
@@ -63,12 +111,21 @@ export function ProgressLine({ label, value, detail }: { label: string; value: n
 export function DemoBanner() {
   return (
     <div className="rounded-md border border-white/10 bg-white/[0.035] px-3 py-2 text-xs leading-5 text-slate-300">
-      <span className="font-semibold text-slate-100">Data status:</span> current analysis is based on the latest public Chamber directory snapshot. Attendance and outreach metrics will populate when those records are added.
+      <span className="font-semibold text-slate-100">Data status:</span> current
+      analysis is based on the latest public Chamber directory snapshot.
+      Attendance and outreach metrics will populate when those records are
+      added.
     </div>
   );
 }
 
-export function EmptyState({ title, description }: { title: string; description: string }) {
+export function EmptyState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <div className="rounded-lg border border-dashed border-white/15 bg-ink-900/60 p-5 text-center">
       <CircleDashed className="mx-auto text-slate-500" size={24} />
@@ -80,14 +137,29 @@ export function EmptyState({ title, description }: { title: string; description:
 
 export function StatusBadge({ value }: { value: string }) {
   const normalized = value.toLowerCase();
-  const healthy = normalized === "active" || normalized.includes("available") || normalized.includes("strong") || normalized.includes("complete") || normalized.includes("listed");
-  const risky = normalized.includes("missing") || normalized.includes("needs") || normalized.includes("past due") || normalized === "inactive";
+  const healthy =
+    normalized === "active" ||
+    normalized.includes("available") ||
+    normalized.includes("strong") ||
+    normalized.includes("complete") ||
+    normalized.includes("listed");
+  const risky =
+    normalized.includes("missing") ||
+    normalized.includes("needs") ||
+    normalized.includes("past due") ||
+    normalized === "inactive";
   const cls = healthy
     ? "bg-signal-green/[0.12] text-signal-green ring-signal-green/25"
     : risky
       ? "bg-signal-red/[0.12] text-signal-red ring-signal-red/25"
       : "bg-signal-amber/[0.12] text-signal-amber ring-signal-amber/25";
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${cls}`}>{value}</span>;
+  return (
+    <span
+      className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${cls}`}
+    >
+      {value}
+    </span>
+  );
 }
 
 export function InsightCard({ text }: { text: string }) {

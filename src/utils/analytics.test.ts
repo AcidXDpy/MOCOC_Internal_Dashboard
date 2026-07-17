@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Member } from "../types";
-import { getContactability, getDataCompletenessScore, getDataQualityScore, getOutreachCandidates, getRenewalUrgency } from "./analytics";
+import {
+  getContactability,
+  getDataCompletenessScore,
+  getDataQualityScore,
+  getOutreachCandidates,
+  getRenewalUrgency,
+} from "./analytics";
 
 const baseMember: Member = {
   member_id: "T-001",
@@ -27,18 +33,32 @@ const baseMember: Member = {
 describe("analytics helpers", () => {
   it("classifies renewal urgency from the current analysis date", () => {
     expect(getRenewalUrgency(baseMember)).toBe("Due Soon");
-    expect(getRenewalUrgency({ ...baseMember, renewal_date: "2026-12-15" })).toBe("Scheduled");
+    expect(
+      getRenewalUrgency({ ...baseMember, renewal_date: "2026-12-15" }),
+    ).toBe("Scheduled");
   });
 
   it("reports practical contactability labels", () => {
     expect(getContactability(baseMember)).toBe("Phone Listed");
-    expect(getContactability({ ...baseMember, phone: "", email: "" })).toBe("Needs Contact");
-    expect(getContactability({ ...baseMember, email: "staff@example.com" })).toBe("Phone + Email");
+    expect(getContactability({ ...baseMember, phone: "", email: "" })).toBe(
+      "Needs Contact",
+    );
+    expect(
+      getContactability({ ...baseMember, email: "staff@example.com" }),
+    ).toBe("Phone + Email");
   });
 
   it("computes profile completeness from available record fields", () => {
     expect(getDataCompletenessScore(baseMember)).toBeGreaterThan(70);
-    expect(getDataCompletenessScore({ ...baseMember, phone: "", website: "", latitude: null, longitude: null })).toBeLessThan(70);
+    expect(
+      getDataCompletenessScore({
+        ...baseMember,
+        phone: "",
+        website: "",
+        latitude: null,
+        longitude: null,
+      }),
+    ).toBeLessThan(70);
   });
 
   it("ranks outreach candidates with transparent factors", () => {

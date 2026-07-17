@@ -16,8 +16,14 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 option {
@@ -41,6 +47,69 @@ option {
   box-shadow: 0 0 0 3px rgba(155, 197, 61, 0.13);
 }
 
+.button-primary,
+.button-secondary,
+.icon-button,
+.feedback-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.button-primary,
+.button-secondary {
+  min-height: 40px;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.875rem;
+}
+
+.button-primary {
+  border-color: rgba(155, 197, 61, 0.5);
+  background: #9bc53d;
+  color: #08100e;
+  font-weight: 600;
+}
+
+.button-primary:hover {
+  background: #aed45a;
+}
+
+.button-secondary {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.button-secondary:hover,
+.icon-button:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.feedback-button {
+  min-height: 32px;
+  padding: 0.35rem 0.55rem;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.feedback-button:hover,
+.feedback-button.active {
+  border-color: rgba(155, 197, 61, 0.45);
+  background: rgba(155, 197, 61, 0.1);
+  color: #d9f99d;
+}
+
 .leaflet-container {
   background: #111d1a;
   font: inherit;
@@ -61,7 +130,7 @@ option {
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 3px solid #071018;
+  border: 3px solid #08100e;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55), 0 8px 20px rgba(0, 0, 0, 0.28);
 }
 
@@ -79,4 +148,31 @@ option {
 
 .map-pin.prospect {
   background: #7aa7c7;
+}
+
+@media print {
+  :root,
+  body {
+    color-scheme: light;
+    background: #fff;
+  }
+
+  .app-sidebar,
+  .mobile-nav,
+  .app-content > footer {
+    display: none !important;
+  }
+
+  .app-main-shell {
+    padding-left: 0 !important;
+  }
+
+  .app-content {
+    padding: 0 !important;
+  }
+
+  .report-sheet {
+    min-height: 100vh;
+    padding: 0 !important;
+  }
 }

@@ -4,7 +4,7 @@ Member Intelligence & Outreach Platform for the Mount Olive Area Chamber of Comm
 
 ## Purpose
 
-This application converts public Chamber directory data into a practical internal analytics system for membership review, renewal follow-up, outreach prioritization, geographic analysis, and data-quality management.
+This application converts public Chamber directory data and official public economic statistics into a two-sided local intelligence platform for Chamber administrators and individual member businesses.
 
 The platform is designed to help Chamber staff answer operational questions:
 
@@ -23,6 +23,10 @@ The platform is designed to help Chamber staff answer operational questions:
 - Outreach
 - Data Quality
 - Methodology
+- Member Intelligence Center
+- Individual Business Intelligence workspace
+- Explainable recommendations and feedback states
+- Printable business intelligence report
 - Public-safe project overview at `/project`
 
 ## Data Sources
@@ -33,6 +37,8 @@ The app also includes local economic context from public sources:
 
 - ACS 2024 5-year indicators for Mount Olive township via Census Reporter, using U.S. Census Bureau data.
 - U.S. Census Bureau 2023 County Business Patterns for Morris County employer establishments, employment, and payroll by sector.
+- U.S. Census Bureau 2023 ZIP Business Patterns for Budd Lake (07828) and Flanders (07836).
+- ACS estimate margins of error, confidence grades, and metric provenance.
 
 Fields such as email, contact names, renewal dates, membership start dates, and internal member status are still synthetic placeholders until the Chamber provides official exports. The UI labels these limitations and does not treat them as verified facts.
 
@@ -44,6 +50,8 @@ Current scoring is deterministic and transparent:
 - Renewal urgency is based on the renewal-date field.
 - Outreach priority uses renewal timing, missing contact fields, website coverage, mapping coverage, and outreach-log availability.
 - Data Quality Score weights phone, website, map, industry, and renewal-date coverage.
+- Business recommendations combine goal alignment, evidence quality, feasibility, measured relevance, and freshness.
+- NAICS codes are category-crosswalk suggestions until a business or administrator verifies them.
 
 The app does not train or claim a predictive retention-risk model because labeled renewal outcomes and engagement history are not yet available.
 
@@ -55,9 +63,11 @@ The app does not train or claim a predictive retention-risk model because labele
 - Tailwind CSS
 - Recharts
 - React Leaflet / Leaflet
-- Local TypeScript public-data snapshots and clearly labeled synthetic placeholders
+- Vercel server function for approved Census API requests
+- PostgreSQL migration and row-level access-control contract for the production persistence phase
+- Local TypeScript last-known-good public-data snapshots and clearly labeled synthetic placeholders
 
-No backend, authentication, payments, or production database are included in this version.
+The current deployment remains a static preview: authentication and a production database are not connected. Member mode is labeled accordingly and must not receive confidential data until the migration, identity provider, and authenticated API adapter are deployed.
 
 ## Run Locally
 
@@ -78,6 +88,21 @@ Run checks:
 
 ```bash
 npm test
+npm run typecheck
+npm run lint
+npm run format:check
+```
+
+Initialize all 116 intelligence profiles and print an import summary:
+
+```bash
+npm run data:init
+```
+
+Refresh approved Census variables after setting `CENSUS_API_KEY`:
+
+```bash
+npm run data:refresh-census
 ```
 
 ## Deployment
@@ -90,9 +115,16 @@ The app is a Vite single-page application. Vercel should use:
 
 The included `vercel.json` rewrites direct route visits such as `/project` back to the SPA entry point.
 
+Set server-only environment variables from `.env.example`. Never expose `CENSUS_API_KEY` through a `VITE_` variable.
+
 ## Known Limitations
 
 - Public directory data is not the same as an official internal Chamber roster.
 - Attendance, outreach, renewal history, and staff notes require official Chamber exports or a future database.
 - Renewal dates and member lifecycle fields are placeholders until verified source data exists.
 - Sector benchmarking maps Chamber categories to broad NAICS-style sectors for descriptive comparison only.
+- Business profile edits and recommendation feedback are preview state until authenticated persistence is connected.
+- Only the two core ZIPs currently have checked-in ZBP context.
+- The NAICS crosswalk is a suggestion queue, not a substitute for human classification review.
+
+Detailed architecture, methods, source notes, recommendation logic, and privacy boundaries are in `docs/`.

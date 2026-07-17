@@ -1,13 +1,40 @@
-import { BarChart3, ClipboardList, Database, FileText, LayoutDashboard, MapPinned, Search, Table2 } from "lucide-react";
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  ClipboardList,
+  Database,
+  FileText,
+  LayoutDashboard,
+  MapPinned,
+  Search,
+  Table2,
+  UserRoundSearch,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import chamberLogo from "../assets/mount-olive-chamber-logo.png";
 import { lastUpdatedLabel } from "../utils/analytics";
 
-export type ViewKey = "overview" | "directory" | "map" | "insights" | "outreach" | "dataQuality" | "methodology" | "project";
+export type ViewKey =
+  | "overview"
+  | "businessIntelligence"
+  | "memberWorkspace"
+  | "directory"
+  | "map"
+  | "insights"
+  | "outreach"
+  | "dataQuality"
+  | "methodology"
+  | "project";
 
 const navItems: { key: ViewKey; label: string; icon: LucideIcon }[] = [
   { key: "overview", label: "Overview", icon: LayoutDashboard },
+  {
+    key: "businessIntelligence",
+    label: "Business Intel",
+    icon: BriefcaseBusiness,
+  },
+  { key: "memberWorkspace", label: "Member Preview", icon: UserRoundSearch },
   { key: "directory", label: "Members", icon: Table2 },
   { key: "map", label: "Map", icon: MapPinned },
   { key: "insights", label: "Insights", icon: BarChart3 },
@@ -27,15 +54,19 @@ export function Shell({
 }) {
   return (
     <div className="min-h-screen bg-ink-950 text-slate-100">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-white/10 bg-ink-900/95 p-4 lg:block">
+      <aside className="app-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-white/10 bg-ink-900/95 p-4 lg:block">
         <div className="mb-7 rounded-lg border border-white/10 bg-white/[0.025] p-4">
           <img
             src={chamberLogo}
             alt="Mount Olive Area Chamber of Commerce"
             className="h-auto w-40"
           />
-          <h1 className="mt-5 text-xl font-semibold leading-tight">Mount Olive Chamber Analytics</h1>
-          <p className="mt-2 text-xs leading-5 text-slate-400">Member Intelligence & Outreach Platform</p>
+          <h1 className="mt-5 text-xl font-semibold leading-tight">
+            Mount Olive Chamber Analytics
+          </h1>
+          <p className="mt-2 text-xs leading-5 text-slate-400">
+            Member Intelligence & Outreach Platform
+          </p>
         </div>
         <nav className="space-y-1.5">
           {navItems.map((item) => {
@@ -45,7 +76,9 @@ export function Shell({
               <button
                 key={item.key}
                 className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-signal-teal/50 ${
-                  active ? "bg-signal-teal/[0.12] text-white ring-1 ring-signal-teal/25" : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                  active
+                    ? "bg-signal-teal/[0.12] text-white ring-1 ring-signal-teal/25"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
                 }`}
                 onClick={() => setActiveView(item.key)}
               >
@@ -56,8 +89,8 @@ export function Shell({
           })}
         </nav>
       </aside>
-      <main className="lg:pl-64">
-        <div className="sticky top-0 z-20 border-b border-white/10 bg-ink-950/90 px-4 py-3 backdrop-blur lg:hidden">
+      <main className="app-main-shell lg:pl-64">
+        <div className="mobile-nav sticky top-0 z-20 border-b border-white/10 bg-ink-950/90 px-4 py-3 backdrop-blur lg:hidden">
           <div className="flex items-center gap-2 overflow-x-auto">
             {navItems.map((item) => (
               <button
@@ -70,7 +103,7 @@ export function Shell({
             ))}
           </div>
         </div>
-        <div className="px-4 py-6 sm:px-6 lg:px-7 xl:px-8">
+        <div className="app-content px-4 py-6 sm:px-6 lg:px-7 xl:px-8">
           {children}
           <footer className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-slate-500">
             Developed by Nakul Ramprasad
@@ -81,13 +114,25 @@ export function Shell({
   );
 }
 
-export function PageHeader({ title, description }: { title: string; description: string }) {
+export function PageHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
   return (
     <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.18em] text-signal-teal">Mount Olive Chamber Analytics</p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">{title}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{description}</p>
+        <p className="text-xs font-medium uppercase tracking-[0.18em] text-signal-teal">
+          Mount Olive Chamber Analytics
+        </p>
+        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+          {title}
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+          {description}
+        </p>
       </div>
       <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-400">
         <Search size={16} />

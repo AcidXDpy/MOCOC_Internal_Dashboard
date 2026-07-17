@@ -7,7 +7,8 @@ export const events: ChamberEvent[] = [
     event_type: "Networking",
     event_date: "2026-07-10",
     event_location: "Budd Lake",
-    event_description: "Pilot event placeholder for future attendance tracking.",
+    event_description:
+      "Pilot event placeholder for future attendance tracking.",
   },
   {
     event_id: "EVT-002",
@@ -15,7 +16,8 @@ export const events: ChamberEvent[] = [
     event_type: "Education",
     event_date: "2026-08-14",
     event_location: "Flanders",
-    event_description: "Future programming placeholder for Chamber engagement analytics.",
+    event_description:
+      "Future programming placeholder for Chamber engagement analytics.",
   },
 ];
 

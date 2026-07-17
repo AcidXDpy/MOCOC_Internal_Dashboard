@@ -12,15 +12,26 @@ const markerIcon = (status: string) =>
   });
 
 export function MemberMapView({ members }: { members: Member[] }) {
-  const mapped = members.filter((member) => member.latitude && member.longitude);
+  const mapped = members.filter(
+    (member) => member.latitude && member.longitude,
+  );
 
   if (!mapped.length) {
-    return <div className="rounded-lg bg-ink-900 p-8 text-center text-sm text-slate-400">No mapped members match the current filters.</div>;
+    return (
+      <div className="rounded-lg bg-ink-900 p-8 text-center text-sm text-slate-400">
+        No mapped members match the current filters.
+      </div>
+    );
   }
 
   return (
     <div className="h-[520px] overflow-hidden rounded-lg border border-white/10">
-      <MapContainer center={[40.862, -74.735]} zoom={11} scrollWheelZoom className="h-full w-full">
+      <MapContainer
+        center={[40.862, -74.735]}
+        zoom={11}
+        scrollWheelZoom
+        className="h-full w-full"
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
