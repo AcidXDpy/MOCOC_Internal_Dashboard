@@ -67,12 +67,12 @@ const BusinessIntelligenceWorkspace = lazy(() =>
 );
 
 const palette = [
-  "#9bc53d",
-  "#d7a84f",
-  "#7aa7c7",
-  "#fb7185",
-  "#a3b18a",
-  "#c9ada7",
+  "#b7e33d",
+  "#f2b84b",
+  "#40b9d6",
+  "#fb5f72",
+  "#7fcf8f",
+  "#d4a6c8",
   "#94a3b8",
 ];
 const pageSize = 25;
@@ -1632,7 +1632,7 @@ function ChartBars({ data }: { data: { name: string; value: number }[] }) {
               color: "#fff",
             }}
           />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#9bc53d" />
+          <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#b7e33d" />
         </BarChart>
       </ResponsiveContainer>
     </div>

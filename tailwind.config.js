@@ -5,22 +5,22 @@ export default {
     extend: {
       colors: {
         ink: {
-          950: "#08100e",
-          900: "#0e1815",
-          850: "#12201c",
-          800: "#192a24",
-          700: "#2a4037",
+          950: "#06120d",
+          900: "#0a1c15",
+          850: "#123023",
+          800: "#174235",
+          700: "#245a45",
         },
         signal: {
-          blue: "#7aa7c7",
-          teal: "#9bc53d",
-          green: "#9bc53d",
-          amber: "#d7a84f",
-          red: "#fb7185",
+          blue: "#40b9d6",
+          teal: "#b7e33d",
+          green: "#9ed83b",
+          amber: "#f2b84b",
+          red: "#fb5f72",
         },
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(155,197,61,.14), 0 24px 70px rgba(0,0,0,.28)",
+        glow: "0 0 0 1px rgba(183,227,61,.22), 0 18px 60px rgba(0,0,0,.34)",
       },
     },
   },

@@ -55,7 +55,7 @@ export function Shell({
   return (
     <div className="min-h-screen bg-ink-950 text-slate-100">
       <aside className="app-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-white/10 bg-ink-900/95 p-4 lg:block">
-        <div className="mb-7 rounded-lg border border-white/10 bg-white/[0.025] p-4">
+        <div className="brand-panel mb-7 rounded-lg border p-4">
           <img
             src={chamberLogo}
             alt="Mount Olive Area Chamber of Commerce"
@@ -77,8 +77,8 @@ export function Shell({
                 key={item.key}
                 className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-signal-teal/50 ${
                   active
-                    ? "bg-signal-teal/[0.12] text-white ring-1 ring-signal-teal/25"
-                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                    ? "bg-signal-teal font-semibold text-ink-950 ring-1 ring-signal-teal/40 shadow-[inset_4px_0_0_#40b9d6]"
+                    : "text-slate-300 hover:bg-signal-blue/[0.1] hover:text-white"
                 }`}
                 onClick={() => setActiveView(item.key)}
               >
@@ -95,7 +95,7 @@ export function Shell({
             {navItems.map((item) => (
               <button
                 key={item.key}
-                className={`shrink-0 rounded-md px-3 py-2 text-xs ${activeView === item.key ? "bg-signal-teal text-ink-950" : "bg-white/10 text-slate-300"}`}
+                className={`shrink-0 rounded-md px-3 py-2 text-xs ${activeView === item.key ? "bg-signal-teal font-semibold text-ink-950" : "bg-signal-blue/[0.12] text-slate-200"}`}
                 onClick={() => setActiveView(item.key)}
               >
                 {item.label}
@@ -122,7 +122,7 @@ export function PageHeader({
   description: string;
 }) {
   return (
-    <header className="mb-6 flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
+    <header className="page-header mb-6 flex flex-col gap-4 px-4 py-5 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.18em] text-signal-teal">
           Mount Olive Chamber Analytics
@@ -134,7 +134,7 @@ export function PageHeader({
           {description}
         </p>
       </div>
-      <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-400">
+      <div className="flex items-center gap-2 rounded-lg border border-signal-blue/30 bg-signal-blue/[0.1] px-3 py-2 text-sm text-slate-200">
         <Search size={16} />
         Last updated {lastUpdatedLabel}
       </div>

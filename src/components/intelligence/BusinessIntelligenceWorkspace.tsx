@@ -72,7 +72,7 @@ export function BusinessIntelligenceWorkspace({
           description="Personalized local-market evidence, explainable recommendations, and Chamber-network opportunities for an individual member business."
         />
       </div>
-      <div className="mb-5 flex flex-col gap-3 border border-signal-amber/25 bg-signal-amber/[0.07] p-4 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
+      <div className="mb-5 flex flex-col gap-3 border border-signal-amber/40 bg-signal-amber/[0.12] p-4 text-sm text-slate-200 md:flex-row md:items-center md:justify-between">
         <div>
           <p className="font-medium text-white">Member access preview</p>
           <p className="mt-1 text-xs leading-5 text-slate-400">
@@ -95,10 +95,10 @@ export function BusinessIntelligenceWorkspace({
         </select>
       </div>
 
-      <section className="border-b border-white/10 pb-5 print:hidden">
+      <section className="border-y border-signal-teal/25 bg-ink-900/70 px-4 py-5 shadow-glow print:hidden">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-signal-teal/25 bg-signal-teal/[0.1] text-signal-teal">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-signal-teal/40 bg-signal-teal/[0.16] text-signal-teal">
               <Building2 size={24} />
             </div>
             <div>
@@ -176,7 +176,7 @@ export function BusinessIntelligenceWorkspace({
         ).map(([key, label]) => (
           <button
             key={key}
-            className={`shrink-0 border-b-2 px-3 py-3 text-sm ${tab === key ? "border-signal-teal text-white" : "border-transparent text-slate-400 hover:text-white"}`}
+            className={`shrink-0 border-b-2 px-3 py-3 text-sm ${tab === key ? "border-signal-teal bg-signal-teal text-ink-950" : "border-transparent bg-white/[0.03] text-slate-300 hover:bg-signal-blue/[0.1] hover:text-white"}`}
             onClick={() => setTab(key)}
           >
             {label}
@@ -446,7 +446,7 @@ export function BusinessIntelligenceWorkspace({
                 return (
                   <label
                     key={goal}
-                    className={`flex min-h-12 cursor-pointer items-center gap-3 border px-3 py-2 text-sm ${checked ? "border-signal-teal/45 bg-signal-teal/[0.08] text-white" : "border-white/10 text-slate-300"}`}
+                    className={`flex min-h-12 cursor-pointer items-center gap-3 border px-3 py-2 text-sm ${checked ? "border-signal-teal/55 bg-signal-teal/[0.14] text-white" : "border-white/10 bg-white/[0.02] text-slate-300"}`}
                   >
                     <input
                       type="checkbox"
@@ -876,11 +876,11 @@ function IntelligenceCard({
   confidence: string;
 }) {
   return (
-    <section className="rounded-lg border border-white/10 bg-white/[0.035] p-4">
+    <section className="rounded-lg border border-signal-blue/25 bg-signal-blue/[0.08] p-4">
       <p className="text-xs leading-5 text-slate-400">{label}</p>
       <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
       <p className="mt-2 text-xs text-slate-500">{comparison}</p>
-      <p className="mt-3 border-t border-white/10 pt-3 text-xs text-signal-teal">
+      <p className="mt-3 border-t border-signal-blue/20 pt-3 text-xs text-signal-teal">
         {confidence}
       </p>
     </section>
