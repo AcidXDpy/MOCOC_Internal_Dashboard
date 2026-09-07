@@ -20,8 +20,6 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    env:
-      ECONOMY_DATA_DIR: ${{ runner.temp }}/economic-warehouse
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +34,8 @@ jobs:
       - run: npm ci
       - run: python -m pip install -r research/requirements.txt
       - name: Rebuild and audit economic evidence
+        env:
+          ECONOMY_DATA_DIR: ${{ runner.temp }}/economic-warehouse
         run: |
           if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.refresh }}" = "true" ]; then
             npm run economy:pipeline -- --refresh
