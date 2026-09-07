@@ -88,6 +88,12 @@ export function Shell({
             );
           })}
         </nav>
+        <a
+          href="/"
+          className="mt-5 block border-t border-white/10 px-3 pt-4 text-sm text-signal-teal"
+        >
+          Economic Observatory
+        </a>
       </aside>
       <main className="app-main-shell lg:pl-64">
         <div className="mobile-nav sticky top-0 z-20 border-b border-white/10 bg-ink-950/90 px-4 py-3 backdrop-blur lg:hidden">
@@ -104,6 +110,12 @@ export function Shell({
           </div>
         </div>
         <div className="app-content px-4 py-6 sm:px-6 lg:px-7 xl:px-8">
+          <a
+            href="/"
+            className="mb-4 inline-block text-xs text-signal-teal lg:hidden"
+          >
+            Economic Observatory
+          </a>
           {children}
           <footer className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-slate-500">
             Developed by Nakul Ramprasad

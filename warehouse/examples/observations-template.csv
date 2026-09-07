@@ -1,0 +1,1 @@
+indicator_id,indicator_name,domain,unit,geography_id,geography_name,geography_type,geography_vintage,period_start,period_end,frequency,value,status,source_id,source_name,source_url,release_key,release_date,retrieved_at,margin_of_error,moe_confidence,method,quality_flags

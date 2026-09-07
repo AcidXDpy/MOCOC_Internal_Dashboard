@@ -54,6 +54,7 @@ import {
 } from "./components/Cards";
 import { MemberMapView } from "./components/MemberMapView";
 import { PageHeader, Shell, type ViewKey } from "./components/Shell";
+const EconomicPlatform = lazy(() => import("./economy/EconomicPlatform"));
 
 const AdminIntelligenceCenter = lazy(() =>
   import("./components/intelligence/AdminIntelligenceCenter").then(
@@ -102,6 +103,24 @@ const defaultFilters: MemberFilters = {
 };
 
 export default function App() {
+  if (
+    window.location.pathname === "/" ||
+    window.location.pathname.startsWith("/economy")
+  ) {
+    return (
+      <Suspense
+        fallback={
+          <div className="p-8 text-white">Loading economic observatory...</div>
+        }
+      >
+        <EconomicPlatform />
+      </Suspense>
+    );
+  }
+  return <ChamberApp />;
+}
+
+function ChamberApp() {
   const initialView: ViewKey =
     window.location.pathname === "/project" ||
     window.location.pathname === "/about"

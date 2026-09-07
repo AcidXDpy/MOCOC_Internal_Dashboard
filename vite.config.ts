@@ -12,6 +12,13 @@ export default defineConfig({
           icons: ["lucide-react"],
           maps: ["leaflet", "react-leaflet"],
           react: ["react", "react-dom"],
+          "research-reader": [
+            "react-markdown",
+            "remark-gfm",
+            "remark-math",
+            "rehype-katex",
+            "katex",
+          ],
         },
       },
     },

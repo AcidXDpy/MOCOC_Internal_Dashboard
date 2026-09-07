@@ -1,130 +1,87 @@
-# Mount Olive Chamber Analytics
+# Mount Olive Economic Observatory
 
-Member Intelligence & Outreach Platform for the Mount Olive Area Chamber of Commerce.
+A local economic research platform deployed through the Mount Olive Area Chamber of Commerce. The economy is the primary unit of analysis.
 
-## Purpose
+## Implemented
 
-This application converts public Chamber directory data and official public economic statistics into a two-sided local intelligence platform for Chamber administrators and individual member businesses.
+The default `/` route has eleven economic analysis views. The original member application remains at `/chamber`; existing business/project routes remain available.
 
-The platform is designed to help Chamber staff answer operational questions:
+- Source-linked township demographics, core-ZIP establishments and county labor conditions.
+- BLS monthly forecasts, seasonal-naive benchmark, rolling-origin selection, final holdout and 90% prediction intervals.
+- Lagged-data current-month projection and seasonal-residual early-warning diagnostics.
+- Exploratory tract PCA with loading stability; no unsupported overall health score.
+- Actual tract polygons, global/local Moran statistics, permutations, FDR-adjusted clusters and neighbor sensitivity.
+- Industry composition, RCA, concentration, regional similarity and directory relationship graphs.
+- Live matrix-based conditional shock exposure and binary policy optimization with editable assumptions.
+- Evidence gates for business survival and causal inference; reusable estimators are implemented and tested without invented local outcomes.
+- A complete 20-section research library with 40 research questions, equations, ranked priorities and a seven-component roadmap.
+- Audited SQLite panel warehouse, source revisions, location histories, document-review candidates and model-source lineage.
 
-- Which member records need renewal follow-up?
-- Which listings are contactable today?
-- Where is the member base geographically concentrated?
-- Which industries and communities are most represented?
-- What data must be cleaned up before attendance, outreach, and retention analytics are reliable?
+## Data and Scientific Limits
 
-## Current Modules
+The September 7, 2026 bundle contains BLS Morris County monthly history from 2000 through July 2026, ACS 2020-2024 pooled tract estimates, 110 tract boundaries (105 eligible analytical tracts), a fixed 2018-2023 NJ CBP comparison window, 2023 ZBP for 07828/07836, and 116 public directory listings from July 16, 2026. The directory has 96 coordinates and is a selected multi-community sample, not a census of businesses. Synthetic lifecycle fields are excluded.
 
-- Overview
-- Members
-- Map
-- Insights
-- Outreach
-- Data Quality
-- Methodology
-- Member Intelligence Center
-- Individual Business Intelligence workspace
-- Explainable recommendations and feedback states
-- Printable business intelligence report
-- Public-safe project overview at `/project`
+The comparable industry matrix contains 21 counties and 16 sectors, covering 16,343 of 16,518 Morris establishments in 2023. Missing sectors are not zero-filled. October 2025 BLS data remain missing. Survey margins of error and source-specific dates remain visible.
 
-## Data Sources
+The selected state-space model wins the selection sample but **loses the final holdout** to the seasonal-naive baseline (MAE approximately 0.568 versus 0.489 percentage points). Nominal 90% intervals over-cover this small holdout. The app reports this. Current-month projections are not measured current activity or GDP. The PCA has mixed loading directions and fails the health-orientation gate. Network similarity is not a transaction relationship. Policy benefits and shock propagation are explicitly hypothetical assumptions.
 
-The current member dataset is normalized from the public Mount Olive Area Chamber/Membee directory. It includes 116 unique public listings as of July 16, 2026. Public fields include business names, categories, descriptions, addresses, phone numbers, websites, and map coordinates when exposed by the directory.
+Source publication dates are not guessed. These latest-vintage snapshots do not support a real-time historical backtest. Property, traffic, permit and verified business-event tables remain empty until evidence is acquired.
 
-The app also includes local economic context from public sources:
+## Run the Website
 
-- ACS 2024 5-year indicators for Mount Olive township via Census Reporter, using U.S. Census Bureau data.
-- U.S. Census Bureau 2023 County Business Patterns for Morris County employer establishments, employment, and payroll by sector.
-- U.S. Census Bureau 2023 ZIP Business Patterns for Budd Lake (07828) and Flanders (07836).
-- ACS estimate margins of error, confidence grades, and metric provenance.
-
-Fields such as email, contact names, renewal dates, membership start dates, and internal member status are still synthetic placeholders until the Chamber provides official exports. The UI labels these limitations and does not treat them as verified facts.
-
-## Methodology
-
-Current scoring is deterministic and transparent:
-
-- Profile completeness is based on available public fields.
-- Renewal urgency is based on the renewal-date field.
-- Outreach priority uses renewal timing, missing contact fields, website coverage, mapping coverage, and outreach-log availability.
-- Data Quality Score weights phone, website, map, industry, and renewal-date coverage.
-- Business recommendations combine goal alignment, evidence quality, feasibility, measured relevance, and freshness.
-- NAICS codes are category-crosswalk suggestions until a business or administrator verifies them.
-
-The app does not train or claim a predictive retention-risk model because labeled renewal outcomes and engagement history are not yet available.
-
-## Tech Stack
-
-- React
-- Vite
-- TypeScript
-- Tailwind CSS
-- Recharts
-- React Leaflet / Leaflet
-- Vercel server function for approved Census API requests
-- PostgreSQL migration and row-level access-control contract for the production persistence phase
-- Local TypeScript last-known-good public-data snapshots and clearly labeled synthetic placeholders
-
-The current deployment remains a static preview: authentication and a production database are not connected. Member mode is labeled accordingly and must not receive confidential data until the migration, identity provider, and authenticated API adapter are deployed.
-
-## Run Locally
-
-Install Node.js with npm, then run:
-
-```bash
-npm install
-npm run dev
-```
-
-Build for production:
-
-```bash
+```sh
+npm ci
+npm run dev -- --host 127.0.0.1
 npm run build
-```
-
-Run checks:
-
-```bash
 npm test
-npm run typecheck
 npm run lint
-npm run format:check
+npm run test:browser
 ```
 
-Initialize all 116 intelligence profiles and print an import summary:
+Open `http://127.0.0.1:5173/`. The static site reads checked-in results; viewing it needs no Python or account. Browser tests use Edge on Windows and Chromium elsewhere; install Chromium first with `npx playwright install chromium` on non-Windows machines.
 
-```bash
-npm run data:init
+## Reproduce the Evidence
+
+Use Python 3.12 or later:
+
+```sh
+python -m pip install -r research/requirements.txt
+npm run economy:pipeline -- --offline
+npm run test:research
+npm run test:warehouse
 ```
 
-Refresh approved Census variables after setting `CENSUS_API_KEY`:
+The pipeline exports public directory fields, rebuilds models from observed caches, imports the snapshot and 1,206 source records into SQLite, registers model lineage, checks integrity and exports the database view. A clean base run contains 116 businesses and 1,295 panel identities.
 
-```bash
-npm run data:refresh-census
+Use `npm run economy:pipeline -- --refresh` to deliberately download new official snapshots. Without either flag, caches are reused. Models read source-cache observations; SQLite indexes those same observations and revisions. Models do not yet query a shared database server. Review updated coverage and validation before publication.
+
+The live database is outside the OneDrive repository: `%LOCALAPPDATA%/MountOliveEconomy/economy.sqlite` on Windows, or `~/.local/share/MountOliveEconomy/economy.sqlite` elsewhere. Override `ECONOMY_DATA_DIR` and `PYTHON` when needed. Use an explicit database path with the standalone CLI.
+
+```sh
+python -m warehouse --db PATH/economy.sqlite quality
+python -m warehouse --db PATH/economy.sqlite import-csv observations.csv
+python -m warehouse --db PATH/economy.sqlite extract-document minutes.txt --source-url https://example.gov/minutes --retrieved-at 2026-09-07T12:00:00Z
 ```
 
-## Deployment
+Text classifications are source-spanned review candidates, not verified development or economic-impact events. See [warehouse operations](docs/economic-warehouse.md) for formats, review commands, revisions and as-of restrictions.
 
-The app is a Vite single-page application. Vercel should use:
+## Architecture and Delivery
 
-- Framework preset: Vite
-- Build command: `npm run build`
-- Output directory: `dist`
+React/Vite/TypeScript, Recharts, Leaflet, Python (NumPy/SciPy/statsmodels/scikit-learn/NetworkX/Shapely), and SQLite. D3 separates graph nodes visually; ml-matrix solves live exposure scenarios; jsLPSolver solves policy allocation. Markdown and KaTeX render the research library. Heavy estimation runs in the batch pipeline.
 
-The included `vercel.json` rewrites direct route visits such as `/project` back to the SPA entry point.
+GitHub Actions verifies commits/PRs and recomputes candidate evidence weekly or on demand. It uploads artifacts for review; **it does not automatically overwrite published data or commit refreshed observations**. Vercel remains a Vite deployment: build `npm run build`, output `dist`.
 
-Set server-only environment variables from `.env.example`. Never expose `CENSUS_API_KEY` through a `VITE_` variable.
+No production authentication, shared database, commercial-footfall feed or private business account is implied. The older member preview remains a preview. PostgreSQL/PostGIS and the signature hierarchical spatiotemporal model are later stages, gated by data and validation.
 
-## Known Limitations
+## Research Deliverables
 
-- Public directory data is not the same as an official internal Chamber roster.
-- Attendance, outreach, renewal history, and staff notes require official Chamber exports or a future database.
-- Renewal dates and member lifecycle fields are placeholders until verified source data exists.
-- Sector benchmarking maps Chamber categories to broad NAICS-style sectors for descriptive comparison only.
-- Business profile edits and recommendation feedback are preview state until authenticated persistence is connected.
-- Only the two core ZIPs currently have checked-in ZBP context.
-- The NAICS crosswalk is a suggestion queue, not a substitute for human classification review.
+- [Full 20-section technical design](docs/economic-intelligence/technical-design.md)
+- [Exact source acquisition matrix](docs/economic-intelligence/source-acquisition-matrix.md)
+- [Seven-component mathematical roadmap](docs/economic-intelligence/component-roadmap.md)
+- [Architecture and contracts](docs/economic-intelligence/implementation-architecture.md)
+- [Statistical validity and release gates](docs/economic-intelligence/validation-and-release-gates.md)
+- [Executable methods and limitations](research/README.md)
+- [Model-output schema](research/INTERFACE.md)
+- [Warehouse operations](docs/economic-warehouse.md)
 
-Detailed architecture, methods, source notes, recommendation logic, and privacy boundaries are in `docs/`.
+Developed by Nakul Ramprasad.
