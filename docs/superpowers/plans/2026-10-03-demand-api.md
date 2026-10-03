@@ -40,19 +40,19 @@
 - Consumes: current tested workspace
 - Produces: a clean Git baseline before server-backed behavior changes
 
-- [ ] **Step 1: Run the current baseline verification**
+- [x] **Step 1: Run the current baseline verification**
 
 Run: `npm test && npm run test:research && npm run test:warehouse && npx playwright test && npm run lint && npm run build`
 
 Expected: 35 TypeScript tests, 27 research tests, 29 warehouse tests, 15 browser tests, lint, and build pass.
 
-- [ ] **Step 2: Inspect the baseline diff for generated secrets or unrelated files**
+- [x] **Step 2: Inspect the baseline diff for generated secrets or unrelated files**
 
 Run: `git status --short && git diff --check && rg -n "BLOB_READ_WRITE_TOKEN=|DEMAND_ADMIN_TOKEN=" . --glob '!node_modules/**' --glob '!.git/**'`
 
 Expected: no token values; only the already-reviewed Observatory work is included.
 
-- [ ] **Step 3: Commit the baseline**
+- [x] **Step 3: Commit the baseline**
 
 ```bash
 git add e2e package.json package-lock.json scripts src docs public research
@@ -72,7 +72,7 @@ git commit -m "Build local economic pulse and demand observatory"
 - Consumes: `CategoryId`, `DemandPoint`, `DemandSeries`, and existing category IDs
 - Produces: `PublishedDemandDataset`, `DemandApiEnvelope`, `DemandApiError`, `DemandPublishRequest`, `DemandAdminEvent`, `validatePublishRequest(value: unknown): DemandPublishRequest`, `canonicalDataset(request, serverFields): PublishedDemandDataset`, `contentFingerprint(dataset): string`
 
-- [ ] **Step 1: Write failing contract tests**
+- [x] **Step 1: Write failing contract tests**
 
 Add tests named:
 
@@ -83,23 +83,23 @@ Add tests named:
 - `produces the same SHA-256 for semantically identical canonical datasets`
 - `does not include admin credentials or private storage locations in the public contract`
 
-- [ ] **Step 2: Run the contract test and verify RED**
+- [x] **Step 2: Run the contract test and verify RED**
 
 Run: `npx vitest run api/_lib/demand-contract.test.ts`
 
 Expected: FAIL because the contract module and functions do not exist.
 
-- [ ] **Step 3: Implement the pure public types and server validator**
+- [x] **Step 3: Implement the pure public types and server validator**
 
 Implement the exact exported interfaces from the spec in `api-types.ts`. In `demand-contract.ts`, use strict structural validation, canonical key/series/point ordering, server-owned IDs/timestamps/status, and Node `createHash("sha256")`. Permit only `official-csv-export` and `official-api`; reject `demoSample: true`.
 
-- [ ] **Step 4: Run focused and full unit tests**
+- [x] **Step 4: Run focused and full unit tests**
 
 Run: `npx vitest run api/_lib/demand-contract.test.ts && npm test`
 
 Expected: contract tests and all project unit tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/economy/demand/api-types.ts src/economy/demand/types.ts api/_lib/demand-contract.ts api/_lib/demand-contract.test.ts tsconfig.server.json

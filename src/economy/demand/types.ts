@@ -36,7 +36,7 @@ export type DemandBatch = {
   id: string;
   name: string;
   geography: string;
-  source: "demo" | "google-trends-csv";
+  source: "demo" | "google-trends-csv" | "google-trends-api";
   importedAt: string | null;
   filename: string | null;
   comparable: boolean;

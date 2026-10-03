@@ -9,5 +9,10 @@
     "noEmit": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["api/**/*.ts", "scripts/**/*.ts"]
+  "include": [
+    "api/**/*.ts",
+    "scripts/**/*.ts",
+    "src/economy/demand/api-types.ts",
+    "src/economy/demand/types.ts"
+  ]
 }
