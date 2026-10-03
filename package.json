@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^7.4.0",
+    "@vercel/blob": "^2.8.0",
     "d3-force": "^3.0.0",
     "javascript-lp-solver": "^1.0.3",
     "katex": "^0.18.7",
