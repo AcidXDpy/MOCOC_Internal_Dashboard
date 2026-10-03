@@ -1,0 +1,95 @@
+{
+  "source": {
+    "id": "pulse-acs-2019-lookup",
+    "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2019/documentation/user_tools/ACS_5yr_Seq_Table_Number_Lookup.txt",
+    "retrievedAt": "2026-09-11T22:42:53.879707Z",
+    "sha256": "19687946ed8c7bf8405d613b746de8c9da2ff1909a3b8a730a19d241d1b3ff2b",
+    "cachePath": "research/data/pulse-acs-2019-lookup.json",
+    "releaseDate": null,
+    "parserVersion": 1,
+    "geography": "Mount Olive Township, Morris County, New Jersey",
+    "frequency": "five-year pooled estimate",
+    "observationStart": "2015-01-01",
+    "observationEnd": "2019-12-31",
+    "notes": [
+      "Direct Census ACS summary file; estimates and 90% MOEs preserved."
+    ],
+    "name": "ACS 2019 sequence/table dictionary",
+    "variables": [
+      "B01003",
+      "B19013",
+      "B19301",
+      "B23025",
+      "B20002",
+      "C24030"
+    ]
+  },
+  "data": [
+    {
+      "File ID": "ACSSF",
+      "Table ID": "B01003",
+      "Sequence Number": "0002",
+      "Line Number": "",
+      "Start Position": "130",
+      "Total Cells in Table": "1 CELL",
+      "Total Cells in Sequence": "124",
+      "Table Title": "TOTAL POPULATION",
+      "Subject Area": "Age-Sex"
+    },
+    {
+      "File ID": "ACSSF",
+      "Table ID": "B19013",
+      "Sequence Number": "0058",
+      "Line Number": "",
+      "Start Position": "177",
+      "Total Cells in Table": "1 CELL",
+      "Total Cells in Sequence": "",
+      "Table Title": "MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)",
+      "Subject Area": "Income"
+    },
+    {
+      "File ID": "ACSSF",
+      "Table ID": "B19301",
+      "Sequence Number": "0064",
+      "Line Number": "",
+      "Start Position": "172",
+      "Total Cells in Table": "1 CELL",
+      "Total Cells in Sequence": "",
+      "Table Title": "PER CAPITA INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)",
+      "Subject Area": "Income"
+    },
+    {
+      "File ID": "ACSSF",
+      "Table ID": "B20002",
+      "Sequence Number": "0066",
+      "Line Number": "",
+      "Start Position": "50",
+      "Total Cells in Table": "3 CELLS",
+      "Total Cells in Sequence": "",
+      "Table Title": "MEDIAN EARNINGS IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS) BY SEX FOR THE POPULATION 16 YEARS AND OVER WITH EARNINGS IN THE PAST 12 MONTHS",
+      "Subject Area": "Earnings"
+    },
+    {
+      "File ID": "ACSSF",
+      "Table ID": "B23025",
+      "Sequence Number": "0078",
+      "Line Number": "",
+      "Start Position": "38",
+      "Total Cells in Table": "7 CELLS",
+      "Total Cells in Sequence": "",
+      "Table Title": "EMPLOYMENT STATUS FOR THE POPULATION 16 YEARS AND OVER",
+      "Subject Area": "Employment Status"
+    },
+    {
+      "File ID": "ACSSF",
+      "Table ID": "C24030",
+      "Sequence Number": "0081",
+      "Line Number": "",
+      "Start Position": "161",
+      "Total Cells in Table": "55 CELLS",
+      "Total Cells in Sequence": "209",
+      "Table Title": "SEX BY INDUSTRY FOR THE CIVILIAN EMPLOYED POPULATION 16 YEARS AND OVER",
+      "Subject Area": "Industry-Occupation-Class of Worker"
+    }
+  ]
+}

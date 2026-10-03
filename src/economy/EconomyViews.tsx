@@ -35,6 +35,7 @@ import {
 } from "./formatters";
 import { ModelDetails, Readiness } from "./ModelDetails";
 import { ForecastChart } from "./ForecastChart";
+import DemandPulse from "./demand/DemandPulse";
 
 export function EconomyOverview({
   data,
@@ -67,6 +68,7 @@ export function EconomyOverview({
     .slice(0, 6);
   return (
     <>
+      <DemandPulse onExplore={() => navigate("demand")} />
       <div className="eco-stats">
         <Stat
           label="Mount Olive residents"

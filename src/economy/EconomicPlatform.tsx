@@ -20,6 +20,7 @@ import {
   Network,
   RefreshCw,
   Scale,
+  Search,
   ShieldCheck,
   X,
 } from "lucide-react";
@@ -41,12 +42,26 @@ const SpatialView = lazy(() => import("./SpatialView"));
 const ResilienceView = lazy(() => import("./ResilienceView"));
 const PolicyLab = lazy(() => import("./PolicyLab"));
 const ResearchView = lazy(() => import("./ResearchView"));
+const LocalEconomicPulse = lazy(() => import("./pulse/LocalEconomicPulse"));
+const LocalDemand = lazy(() => import("./demand/LocalDemand"));
 const items = [
   {
     id: "overview",
     label: "Local economy",
     icon: Globe2,
     scope: "Mount Olive / Morris County",
+  },
+  {
+    id: "pulse",
+    label: "Local Economic Pulse",
+    icon: Activity,
+    scope: "Mount Olive Township / Morris County / New Jersey",
+  },
+  {
+    id: "demand",
+    label: "Local Demand",
+    icon: Search,
+    scope: "Search behavior as a signal of the local economy",
   },
   {
     id: "health",
@@ -207,11 +222,13 @@ export default function EconomicPlatform() {
         <nav aria-label="Economic analysis">
           {items.map((item, i) => (
             <div key={item.id}>
-              {(i === 0 || i === 7 || i === 9) && (
+              {(i === 0 ||
+                item.id === "resilience" ||
+                item.id === "evidence") && (
                 <p className="eco-nav-label">
                   {i === 0
                     ? "Monitor & analyze"
-                    : i === 7
+                    : item.id === "resilience"
                       ? "Experiment"
                       : "Evidence & methods"}
                 </p>
@@ -259,7 +276,11 @@ export default function EconomicPlatform() {
           <div>
             <span className="eco-status-dot" />
             <span>
-              {data ? `Evidence bundle · ${data.asOfDate}` : "Loading evidence"}
+              {view === "demand" ? "Search signals / represented supply" : view === "pulse"
+                ? "ACS & business patterns"
+                : data
+                  ? `Evidence bundle · ${data.asOfDate}`
+                  : "Loading evidence"}
             </span>
           </div>
         </div>
@@ -272,17 +293,31 @@ export default function EconomicPlatform() {
             </div>
             <Evidence
               tone={
-                view === "policy" || view === "resilience"
+                view === "policy" || view === "resilience" || view === "demand"
                   ? "scenario"
                   : "observed"
               }
             >
-              {view === "policy" || view === "resilience"
+              {view === "demand" ? "Exploratory demand analysis" : view === "policy" || view === "resilience"
                 ? "Assumption-driven scenario"
                 : "Source-linked evidence"}
             </Evidence>
           </header>
-          {error ? (
+          {view === "demand" ? (
+            <ViewBoundary key={view}><Suspense fallback={<div className="eco-loading" role="status">Loading Local Demand...</div>}><LocalDemand /></Suspense></ViewBoundary>
+          ) : view === "pulse" ? (
+            <ViewBoundary key={view}>
+              <Suspense
+                fallback={
+                  <div className="eco-loading" role="status">
+                    Loading comparison...
+                  </div>
+                }
+              >
+                <LocalEconomicPulse />
+              </Suspense>
+            </ViewBoundary>
+          ) : error ? (
             <div className="eco-error" role="alert">
               <p>{error}</p>
               <button

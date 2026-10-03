@@ -27,6 +27,7 @@ function run(command: string[]) {
     );
 }
 run(["-m", "research.build", ...args]);
+run(["-m", "research.pulse", ...args]);
 for (const [command, path] of [
   ["import-snapshot", "public/economy/source-snapshot.json"],
   ["import-csv", "research/data/observations.csv"],

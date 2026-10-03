@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 const routes = [
+  "demand",
+  "pulse",
   "overview",
   "health",
   "labor",

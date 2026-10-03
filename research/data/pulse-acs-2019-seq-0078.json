@@ -1,0 +1,94 @@
+{
+  "source": {
+    "id": "pulse-acs-2019-seq-0078",
+    "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2019/data/5_year_seq_by_state/NewJersey/All_Geographies_Not_Tracts_Block_Groups/20195nj0078000.zip",
+    "retrievedAt": "2026-09-11T22:43:02.472141Z",
+    "sha256": "e0f9e962d64173ebf139e87e962eeffae5b1d0a27cc81bc22f8680dbd08f7cc8",
+    "cachePath": "research/data/pulse-acs-2019-seq-0078.json",
+    "releaseDate": null,
+    "parserVersion": 1,
+    "geography": "Mount Olive Township, Morris County, New Jersey",
+    "frequency": "five-year pooled estimate",
+    "observationStart": "2015-01-01",
+    "observationEnd": "2019-12-31",
+    "notes": [
+      "Direct Census ACS summary file; estimates and 90% MOEs preserved."
+    ],
+    "name": "U.S. Census Bureau ACS 2019 five-year: B23025",
+    "variables": [
+      "B23025"
+    ],
+    "dependencySourceIds": [
+      "pulse-acs-2019-lookup",
+      "pulse-acs-2019-geography"
+    ]
+  },
+  "data": {
+    "06000US3402749080": {
+      "B23025": {
+        "estimate": {
+          "B23025001": "22932",
+          "B23025002": "16183",
+          "B23025003": "16156",
+          "B23025004": "15435",
+          "B23025005": "721",
+          "B23025006": "27",
+          "B23025007": "6749"
+        },
+        "error": {
+          "B23025001": "420",
+          "B23025002": "578",
+          "B23025003": "569",
+          "B23025004": "548",
+          "B23025005": "215",
+          "B23025006": "43",
+          "B23025007": "566"
+        }
+      }
+    },
+    "05000US34027": {
+      "B23025": {
+        "estimate": {
+          "B23025001": "401988",
+          "B23025002": "273249",
+          "B23025003": "273147",
+          "B23025004": "261352",
+          "B23025005": "11795",
+          "B23025006": "102",
+          "B23025007": "128739"
+        },
+        "error": {
+          "B23025001": "430",
+          "B23025002": "1698",
+          "B23025003": "1693",
+          "B23025004": "1685",
+          "B23025005": "909",
+          "B23025006": "69",
+          "B23025007": "1734"
+        }
+      }
+    },
+    "04000US34": {
+      "B23025": {
+        "estimate": {
+          "B23025001": "7148309",
+          "B23025002": "4689849",
+          "B23025003": "4680584",
+          "B23025004": "4422491",
+          "B23025005": "258093",
+          "B23025006": "9265",
+          "B23025007": "2458460"
+        },
+        "error": {
+          "B23025001": "1739",
+          "B23025002": "8775",
+          "B23025003": "8718",
+          "B23025004": "9616",
+          "B23025005": "4475",
+          "B23025006": "708",
+          "B23025007": "8939"
+        }
+      }
+    }
+  }
+}

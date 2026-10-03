@@ -1,0 +1,222 @@
+.pulse-toolbar,
+.pulse-controls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.pulse-geographies,
+.pulse-modes {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
+.pulse-geographies legend,
+.pulse-modes legend,
+.pulse-control {
+  font-size: 11px;
+  color: var(--eco-muted);
+}
+.pulse-geographies legend,
+.pulse-modes legend {
+  margin-bottom: 8px;
+}
+.pulse-geographies label,
+.pulse-modes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.pulse-dot,
+.pulse-geographies i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+.pulse-modes input {
+  accent-color: #15816e;
+}
+.pulse-control {
+  display: grid;
+  gap: 6px;
+  max-width: 100%;
+}
+.pulse-control select {
+  max-width: 100%;
+  min-height: 36px;
+  background: #fff;
+  border: 1px solid var(--eco-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--eco-ink);
+}
+.pulse-module .eco-table caption {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--eco-muted);
+}
+.pulse-module .eco-table th {
+  white-space: normal;
+}
+.pulse-module .eco-table th[scope="row"] {
+  position: static;
+  text-transform: none;
+  color: var(--eco-ink);
+  max-width: 210px;
+  font-size: 12px;
+}
+.pulse-headlines table {
+  table-layout: fixed;
+}
+.pulse-headlines th[scope="row"] strong,
+.pulse-headlines th[scope="row"] small {
+  display: block;
+}
+.pulse-headlines th[scope="row"] small {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--eco-muted);
+  margin-top: 7px;
+}
+.pulse-headlines th .eco-evidence {
+  margin: 7px 0 0;
+}
+.pulse-observation {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  font-size: 10px;
+  color: var(--eco-muted);
+  overflow-wrap: anywhere;
+}
+.pulse-observation strong {
+  color: var(--eco-ink);
+  font-size: 16px;
+  font-weight: 600 !important;
+  font-variant-numeric: tabular-nums;
+}
+.pulse-observation .eco-source {
+  font-size: 10px;
+  width: fit-content;
+}
+.pulse-chart {
+  width: 100%;
+  height: 330px;
+  min-width: 0;
+}
+.pulse-tooltip {
+  background: #fff;
+  padding: 12px;
+  border: 1px solid var(--eco-border);
+  border-radius: 4px;
+  max-width: 290px;
+  box-shadow: 0 3px 12px #19241f15;
+  font-size: 11px;
+}
+.pulse-tooltip > div {
+  border-top: 1px solid var(--eco-border);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.pulse-tooltip .pulse-observation {
+  gap: 0;
+}
+.pulse-latest {
+  display: grid;
+  border-top: 1px solid var(--eco-border);
+  border-bottom: 1px solid var(--eco-border);
+  background: white;
+  margin-bottom: 14px;
+}
+.pulse-latest > div {
+  padding: 16px;
+  border-right: 1px solid var(--eco-border);
+  min-width: 0;
+}
+.pulse-latest h4 {
+  font-size: 13px;
+  margin: 0 0 6px;
+}
+.pulse-latest > div > span {
+  display: block;
+  font-size: 10px;
+  color: var(--eco-muted);
+  margin-bottom: 10px;
+}
+.pulse-latest .pulse-observation strong {
+  font-size: 24px;
+}
+.pulse-share-track {
+  height: 5px;
+  background: #edf0ee;
+  width: 100%;
+  margin-bottom: 7px;
+}
+.pulse-share-track span {
+  display: block;
+  height: 5px;
+}
+.pulse-industry .pulse-observation strong {
+  font-size: 13px;
+}
+.pulse-sources > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--eco-border);
+}
+.pulse-sources span,
+.pulse-sources small {
+  font-size: 11px;
+  color: var(--eco-muted);
+}
+.pulse-table-detail > div {
+  padding: 0;
+}
+@media (max-width: 720px) {
+  .pulse-module .eco-section-heading {
+    flex-direction: column;
+  }
+  .pulse-toolbar {
+    align-items: start;
+  }
+  .pulse-geographies {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .pulse-controls {
+    justify-content: start;
+  }
+  .pulse-control {
+    width: 100%;
+  }
+  .pulse-headlines table,
+  .pulse-industry table,
+  .pulse-table-detail table {
+    min-width: 620px;
+  }
+  .pulse-latest {
+    grid-template-columns: 1fr !important;
+  }
+  .pulse-latest > div {
+    border-right: 0;
+    border-bottom: 1px solid var(--eco-border);
+  }
+  .pulse-chart {
+    height: 290px;
+  }
+}

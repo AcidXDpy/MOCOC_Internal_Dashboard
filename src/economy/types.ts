@@ -269,6 +269,8 @@ export type EconomyResults = {
   causal: Model<unknown>;
 };
 export type EconomicView =
+  | "demand"
+  | "pulse"
   | "overview"
   | "health"
   | "labor"

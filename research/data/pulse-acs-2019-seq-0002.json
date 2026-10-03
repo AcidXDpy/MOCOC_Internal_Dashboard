@@ -1,0 +1,58 @@
+{
+  "source": {
+    "id": "pulse-acs-2019-seq-0002",
+    "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2019/data/5_year_seq_by_state/NewJersey/All_Geographies_Not_Tracts_Block_Groups/20195nj0002000.zip",
+    "retrievedAt": "2026-09-11T22:42:55.567120Z",
+    "sha256": "de82115e6eb1c5d6348e4485096e3a78b634e66c7301692b13af3d632522909b",
+    "cachePath": "research/data/pulse-acs-2019-seq-0002.json",
+    "releaseDate": null,
+    "parserVersion": 1,
+    "geography": "Mount Olive Township, Morris County, New Jersey",
+    "frequency": "five-year pooled estimate",
+    "observationStart": "2015-01-01",
+    "observationEnd": "2019-12-31",
+    "notes": [
+      "Direct Census ACS summary file; estimates and 90% MOEs preserved."
+    ],
+    "name": "U.S. Census Bureau ACS 2019 five-year: B01003",
+    "variables": [
+      "B01003"
+    ],
+    "dependencySourceIds": [
+      "pulse-acs-2019-lookup",
+      "pulse-acs-2019-geography"
+    ]
+  },
+  "data": {
+    "06000US3402749080": {
+      "B01003": {
+        "estimate": {
+          "B01003001": "28915"
+        },
+        "error": {
+          "B01003001": "34"
+        }
+      }
+    },
+    "05000US34027": {
+      "B01003": {
+        "estimate": {
+          "B01003001": "493379"
+        },
+        "error": {
+          "B01003001": "0"
+        }
+      }
+    },
+    "04000US34": {
+      "B01003": {
+        "estimate": {
+          "B01003001": "8878503"
+        },
+        "error": {
+          "B01003001": "0"
+        }
+      }
+    }
+  }
+}
