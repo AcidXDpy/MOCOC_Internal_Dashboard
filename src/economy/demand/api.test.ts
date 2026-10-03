@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import type { PublishedDemandDataset } from "./api-types";
-import { fetchDemandApi, publishedToDemandBatch } from "./api";
+import {
+  fetchDemandApi,
+  publishDemandDataset,
+  publishedToDemandBatch,
+} from "./api";
 
 function published(
   overrides: Partial<PublishedDemandDataset> = {},
@@ -90,5 +94,110 @@ describe("demand API client", () => {
         }),
       ),
     ).toThrow("normalization adapter");
+  });
+
+  it("publishes a validated official CSV request with bearer auth outside the body", async () => {
+    const calls: Array<{ body: string; headers: HeadersInit }> = [];
+    const fetcher = vi.fn(
+      async (_url: URL | RequestInfo, init?: RequestInit) => {
+        calls.push({ body: String(init?.body), headers: init?.headers ?? {} });
+        return new Response(
+          JSON.stringify({ dataset: published(), outcome: "created" }),
+          { status: 201, headers: { "content-type": "application/json" } },
+        );
+      },
+    );
+    const request = {
+      name: published().name,
+      sourceType: published().sourceType,
+      valueUnit: published().valueUnit,
+      frequency: published().frequency,
+      geography: published().geography,
+      comparison: published().comparison,
+      provenance: {
+        sourceOrganization: "Google" as const,
+        sourceProduct: "Google Trends" as const,
+        sourceUrl: published().provenance.sourceUrl,
+        retrievedAt: published().provenance.retrievedAt,
+        originalFilename: published().provenance.originalFilename,
+        acquisitionMethod: "official-csv-export" as const,
+        notes: [],
+      },
+      series: published().series,
+    };
+    const result = await publishDemandDataset(request, "top-secret-admin", {
+      fetcher,
+      idempotencyKey: "official-export-october-2026",
+    });
+    expect(result.id).toBe("verified-one");
+    expect(new Headers(calls[0].headers).get("authorization")).toBe(
+      "Bearer top-secret-admin",
+    );
+    expect(calls[0].body).not.toContain("top-secret-admin");
+  });
+
+  it("never sends demo data or an independently scaled comparison", async () => {
+    const fetcher = vi.fn<typeof fetch>();
+    const request = {
+      name: "Bad cohort",
+      sourceType: "google-trends-csv" as const,
+      valueUnit: "normalized-index-0-100" as const,
+      frequency: "Month" as const,
+      geography: published().geography,
+      comparison: { sharedScale: false, method: "single-export" as const },
+      provenance: {
+        sourceOrganization: "Google" as const,
+        sourceProduct: "Google Trends" as const,
+        sourceUrl: published().provenance.sourceUrl,
+        retrievedAt: published().provenance.retrievedAt,
+        originalFilename: "demo.csv",
+        acquisitionMethod: "official-csv-export" as const,
+        notes: [],
+      },
+      series: published().series,
+      demoSample: true,
+    };
+    await expect(
+      publishDemandDataset(request, "secret", { fetcher }),
+    ).rejects.toThrow("Demo or independently scaled data cannot be published");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("clears credentials from returned errors and client state", async () => {
+    const request = {
+      name: published().name,
+      sourceType: published().sourceType,
+      valueUnit: published().valueUnit,
+      frequency: published().frequency,
+      geography: published().geography,
+      comparison: published().comparison,
+      provenance: {
+        sourceOrganization: "Google" as const,
+        sourceProduct: "Google Trends" as const,
+        sourceUrl: published().provenance.sourceUrl,
+        retrievedAt: published().provenance.retrievedAt,
+        originalFilename: published().provenance.originalFilename,
+        acquisitionMethod: "official-csv-export" as const,
+        notes: [],
+      },
+      series: published().series,
+    };
+    let token = "never-return-this-token";
+    try {
+      await publishDemandDataset(request, token, {
+        fetcher: vi.fn(
+          async () =>
+            new Response(
+              JSON.stringify({ error: { message: `bad ${token}` } }),
+              { status: 401 },
+            ),
+        ),
+      });
+    } catch (error) {
+      expect(String(error)).toBe("Error: Publication failed (401)");
+    } finally {
+      token = "";
+    }
+    expect(token).toBe("");
   });
 });

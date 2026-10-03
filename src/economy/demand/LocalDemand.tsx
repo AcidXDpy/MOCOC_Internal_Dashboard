@@ -33,6 +33,8 @@ import { GapMatrix, InterestChart } from "./DemandCharts";
 import ImportDialog from "./ImportDialog";
 import CategoryDialog from "./CategoryDialog";
 import { useDemandApi } from "./useDemandApi";
+import { publishDemandDataset } from "./api";
+import type { DemandPublishRequest } from "./api-types";
 import "./demand.css";
 const DemandMap = lazy(() => import("./DemandMap"));
 
@@ -153,6 +155,15 @@ export default function LocalDemand() {
     } catch (e) {
       setNotice((e as Error).message);
     }
+  }
+  async function publish(request: DemandPublishRequest, adminToken: string) {
+    await publishDemandDataset(request, adminToken, {
+      activate: true,
+      expectedActiveDatasetId: api.envelope?.activeDatasetId ?? null,
+    });
+    userChoseSource.current = false;
+    api.refresh();
+    setNotice("Verified dataset published and activated.");
   }
   const setSorting = (key: SortKey) => {
     setDirection(key === sort && direction === "desc" ? "asc" : "desc");
@@ -944,6 +955,7 @@ export default function LocalDemand() {
           replace={replace}
           onClose={() => setImportOpen(false)}
           onSave={save}
+          onPublish={publish}
         />
       )}
       {chosen && batch && (

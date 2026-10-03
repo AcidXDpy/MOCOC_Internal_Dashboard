@@ -41,15 +41,23 @@ const verifiedEnvelope = () => ({
 
 async function routeVerified(page: Page) {
   await page.route("**/api/demand*", (route) =>
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(verifiedEnvelope()) }),
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(verifiedEnvelope()),
+    }),
   );
 }
 
-test("verified API data becomes the default and exposes complete provenance", async ({ page }) => {
+test("verified API data becomes the default and exposes complete provenance", async ({
+  page,
+}) => {
   await routeVerified(page);
   await page.goto("/#demand");
   await expect(page.getByLabel("Demand data source")).toHaveValue("api");
-  await expect(page.locator(".demand-evidence")).toContainText("Verified API Data");
+  await expect(page.locator(".demand-evidence")).toContainText(
+    "Verified API Data",
+  );
   await page.getByText("Verified source & provenance", { exact: true }).click();
   const provenance = page.locator(".demand-provenance");
   await expect(provenance).toContainText("New Jersey");
@@ -58,18 +66,35 @@ test("verified API data becomes the default and exposes complete provenance", as
   await expect(provenance).toContainText("official-csv-export");
   await expect(provenance).toContainText("restaurants");
   await expect(provenance).toContainText("aaaaaaaaaaaa");
-  await expect(provenance.getByRole("link", { name: "Google Trends source" })).toHaveAttribute("href", /trends\.google\.com/);
+  await expect(
+    provenance.getByRole("link", { name: "Google Trends source" }),
+  ).toHaveAttribute("href", /trends\.google\.com/);
 });
 
-test("empty, malformed, slow and failed API responses retain labeled demo data", async ({ page }) => {
-  const responses: Array<"empty" | "malformed" | "slow" | "failed"> = ["empty", "malformed", "slow", "failed"];
+test("empty, malformed, slow and failed API responses retain labeled demo data", async ({
+  page,
+}) => {
+  const responses: Array<"empty" | "malformed" | "slow" | "failed"> = [
+    "empty",
+    "malformed",
+    "slow",
+    "failed",
+  ];
   for (const kind of responses) {
     await page.unrouteAll({ behavior: "wait" });
     await page.route("**/api/demand*", async (route) => {
-      if (kind === "slow") await new Promise((resolve) => setTimeout(resolve, 1200));
+      if (kind === "slow")
+        await new Promise((resolve) => setTimeout(resolve, 1200));
       if (kind === "failed") return route.fulfill({ status: 503, body: "{}" });
-      const body = kind === "malformed" ? { datasets: [{}] } : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] };
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+      const body =
+        kind === "malformed"
+          ? { datasets: [{}] }
+          : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] };
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(body),
+      });
     });
     await page.goto("/#demand");
     await expect(page.getByLabel("Demand data source")).toHaveValue("demo");
@@ -77,25 +102,157 @@ test("empty, malformed, slow and failed API responses retain labeled demo data",
   }
 });
 
-test("browser imports remain selectable beside verified API data", async ({ page }) => {
+test("browser imports remain selectable beside verified API data", async ({
+  page,
+}) => {
   await routeVerified(page);
   await page.goto("/#demand");
-  await page.getByRole("button", { name: "Import Trends Data", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Import Trends Data", exact: true })
+    .click();
   await upload(page, csv());
   await save(page);
-  await expect(page.getByLabel("Demand data source").locator("option")).toHaveText(["Demo Data", "Verified API Data", "This Browser"]);
+  await expect(
+    page.getByLabel("Demand data source").locator("option"),
+  ).toHaveText(["Demo Data", "Verified API Data", "This Browser"]);
   await expect(page.getByLabel("Demand data source")).toHaveValue("import");
-  await expect(page.locator(".demand-evidence")).toContainText("Google Trends Import");
+  await expect(page.locator(".demand-evidence")).toContainText(
+    "Google Trends Import",
+  );
 });
 
-test("homepage pulse identifies verified source or explicit demo fallback", async ({ page }) => {
+test("homepage pulse identifies verified source or explicit demo fallback", async ({
+  page,
+}) => {
   await routeVerified(page);
   await page.goto("/");
-  await expect(page.locator(".demand-home .demand-context")).toContainText("Verified API Data");
+  await expect(page.locator(".demand-home .demand-context")).toContainText(
+    "Verified API Data",
+  );
   await page.unrouteAll({ behavior: "wait" });
-  await page.route("**/api/demand*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ...verifiedEnvelope(), activeDatasetId: null, datasets: [] }) }));
+  await page.route("**/api/demand*", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ...verifiedEnvelope(),
+        activeDatasetId: null,
+        datasets: [],
+      }),
+    }),
+  );
   await page.reload();
-  await expect(page.locator(".demand-home .demand-context")).toContainText("Demo Data");
+  await expect(page.locator(".demand-home .demand-context")).toContainText(
+    "Demo Data",
+  );
+});
+
+async function completePublishFields(page: Page, token = "admin-secret") {
+  await page
+    .getByRole("checkbox", { name: "Publish verified dataset" })
+    .check();
+  await page
+    .getByLabel("Official Google Trends source URL")
+    .fill("https://trends.google.com/trends/explore?geo=US-NJ");
+  await page.getByLabel("Retrieved at").fill("2026-10-03T14:00");
+  await page.getByLabel("Geography level").selectOption("state");
+  await page.getByLabel("Geography code").fill("US-NJ");
+  await page.getByLabel("Administrator key").fill(token);
+}
+
+test("administrator can preview provenance, publish and select verified data", async ({
+  page,
+}) => {
+  let active = false;
+  await page.route("**/api/demand*", async (route) => {
+    const method = route.request().method();
+    if (method === "POST")
+      return route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          dataset: verifiedEnvelope().datasets[0],
+          outcome: "created",
+        }),
+      });
+    if (method === "PATCH") {
+      active = true;
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(verifiedEnvelope()),
+      });
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        active
+          ? verifiedEnvelope()
+          : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] },
+      ),
+    });
+  });
+  await page.goto("/#demand");
+  await page
+    .getByRole("button", { name: "Import Trends Data", exact: true })
+    .click();
+  await upload(page, csv());
+  await page.getByRole("checkbox", { name: /These columns came/ }).check();
+  await completePublishFields(page);
+  await expect(page.locator(".demand-publish-preview")).toContainText(
+    "New Jersey",
+  );
+  await page.getByRole("button", { name: "Publish Verified Data" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("Demand data source")).toHaveValue("api");
+  await expect(page.locator(".demand-evidence")).toContainText(
+    "Verified API Data",
+  );
+});
+
+test("closing or failing the publish flow erases the admin key and keeps local data", async ({
+  page,
+}) => {
+  await page.route("**/api/demand*", (route) =>
+    route.request().method() === "POST"
+      ? route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: "{}",
+        })
+      : route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ...verifiedEnvelope(),
+            activeDatasetId: null,
+            datasets: [],
+          }),
+        }),
+  );
+  await page.goto("/#demand");
+  await page
+    .getByRole("button", { name: "Import Trends Data", exact: true })
+    .click();
+  await upload(page, csv());
+  await page.getByRole("checkbox", { name: /These columns came/ }).check();
+  await completePublishFields(page, "must-disappear");
+  await page.getByRole("button", { name: "Publish Verified Data" }).click();
+  await expect(page.getByRole("alert")).toContainText("Publication failed");
+  await expect(page.getByLabel("Administrator key")).toHaveValue("");
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("mococ.local-demand.v1") ?? "[]")
+          .length,
+    ),
+  ).toBe(1);
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  await page
+    .getByRole("button", { name: "Import Trends Data", exact: true })
+    .click();
+  await expect(page.getByLabel("Administrator key")).toHaveCount(0);
 });
 
 test("two browser tabs preserve imports and print keeps source context", async ({

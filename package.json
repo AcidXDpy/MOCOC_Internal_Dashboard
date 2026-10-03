@@ -22,7 +22,8 @@
     "format": "prettier --write \"{src,api,scripts}/**/*.{ts,tsx}\" \"*.{json,js,ts,md}\" \"docs/**/*.md\"",
     "format:check": "prettier --check \"{src,api,scripts}/**/*.{ts,tsx}\" \"*.{json,js,ts,md}\" \"docs/**/*.md\"",
     "data:init": "tsx scripts/initialize-intelligence.ts",
-    "data:refresh-census": "tsx scripts/refresh-census.ts"
+    "data:refresh-census": "tsx scripts/refresh-census.ts",
+    "demand:publish": "tsx scripts/publish-demand.ts"
   },
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^7.4.0",

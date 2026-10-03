@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0",
+  "attempts": [
+    {
+      "attemptedAt": "2026-10-03T19:23:30.000Z",
+      "sourceOrganization": "Google",
+      "sourceProduct": "Google Trends Explore",
+      "workflow": "official-browser-explore-and-export",
+      "url": "https://trends.google.com/trends/explore?date=today%205-y&geo=US-NJ&q=restaurants%2Ccoffee%2Cfitness%2Chome%20improvement%2Cchildcare",
+      "geography": {
+        "label": "New Jersey",
+        "level": "state",
+        "code": "US-NJ"
+      },
+      "window": "today 5-y",
+      "queries": [
+        "restaurants",
+        "coffee",
+        "fitness",
+        "home improvement",
+        "childcare"
+      ],
+      "httpOutcome": 429,
+      "pageTitle": "Error 429 (Too Many Requests)!!1",
+      "officialCsvObtained": false,
+      "published": false,
+      "notes": [
+        "Bounded retry used the normal public Explore page in a browser.",
+        "No undocumented endpoint, internal token, proxy, or rate-limit bypass was used.",
+        "No verified dataset was created or published from this attempt."
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import type {
   DemandApiEnvelope,
+  DemandPublishRequest,
   DemandProvenance,
   PublishedDemandDataset,
 } from "./api-types";
@@ -193,6 +194,67 @@ export function publishedToDemandBatch(
     valueUnit: dataset.valueUnit,
     provenance: dataset.provenance,
   };
+}
+
+type PublishOptions = {
+  endpoint?: string;
+  fetcher?: typeof fetch;
+  idempotencyKey?: string;
+  activate?: boolean;
+  expectedActiveDatasetId?: string | null;
+};
+
+export async function publishDemandDataset(
+  request: DemandPublishRequest & { demoSample?: boolean },
+  adminToken: string,
+  options: PublishOptions = {},
+): Promise<PublishedDemandDataset> {
+  if (request.demoSample || !request.comparison.sharedScale)
+    throw new Error(
+      "Demo or independently scaled data cannot be published as verified.",
+    );
+  if (!adminToken) throw new Error("Administrator key is required");
+  const fetcher = options.fetcher ?? fetch;
+  const endpoint = options.endpoint ?? "/api/demand";
+  const headers = {
+    Authorization: `Bearer ${adminToken}`,
+    "Content-Type": "application/json",
+    "Idempotency-Key":
+      options.idempotencyKey ?? `publish-${crypto.randomUUID()}`,
+  };
+  const response = await fetcher(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(request),
+  });
+  if (!response.ok) throw new Error(`Publication failed (${response.status})`);
+  let dataset: PublishedDemandDataset;
+  try {
+    const payload = (await response.json()) as { dataset?: unknown };
+    if (!validDataset(payload.dataset)) throw new Error("invalid");
+    dataset = payload.dataset;
+  } catch {
+    throw new Error("Publication returned an invalid response");
+  }
+  if (options.activate) {
+    const activation = await fetcher(
+      `${endpoint}?id=${encodeURIComponent(dataset.id)}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "activate",
+          expectedActiveDatasetId: options.expectedActiveDatasetId ?? null,
+        }),
+      },
+    );
+    if (!activation.ok)
+      throw new Error(`Activation failed (${activation.status})`);
+  }
+  return dataset;
 }
 
 export type { DemandProvenance };

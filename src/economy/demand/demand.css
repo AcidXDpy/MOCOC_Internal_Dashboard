@@ -608,6 +608,20 @@
   margin-bottom: 12px;
   color: #637a6a;
 }
+.demand-publish-controls {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #dce4df;
+}
+.demand-publish-preview {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  background: #edf4ef;
+  border-left: 3px solid #438264;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
 .demand-file {
   display: grid;
   place-items: center;
