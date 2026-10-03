@@ -200,6 +200,11 @@ export function deriveDemandState(
   const superseded = new Set<string>();
   const archived = new Set<string>();
   for (const event of events) {
+    if (
+      event.expectedActiveDatasetId !== undefined &&
+      event.expectedActiveDatasetId !== activeDatasetId
+    )
+      continue;
     if (event.type === "activate") {
       activeDatasetId = event.datasetId;
       archived.delete(event.datasetId);
