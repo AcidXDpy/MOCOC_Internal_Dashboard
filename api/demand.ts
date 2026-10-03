@@ -55,7 +55,11 @@ function send(response: ResponseLike, status: number, body?: unknown) {
   return response.end(JSON.stringify(body));
 }
 
-function errorBody(code: DemandApiErrorCode, message: string, requestId: string) {
+function errorBody(
+  code: DemandApiErrorCode,
+  message: string,
+  requestId: string,
+) {
   return { error: { code, message, requestId } };
 }
 
@@ -84,7 +88,7 @@ function parseBody(body: unknown): unknown {
     throw error;
   }
   try {
-    return typeof body === "string" ? JSON.parse(body) : body ?? {};
+    return typeof body === "string" ? JSON.parse(body) : (body ?? {});
   } catch {
     throw new Error("Request body must be valid JSON");
   }
@@ -107,8 +111,7 @@ function datasetFromRequest(
 export function createDemandHandler(dependencies: HandlerDependencies) {
   const now = dependencies.now ?? (() => new Date().toISOString());
   const id =
-    dependencies.id ??
-    ((prefix: string) => `${prefix}-${crypto.randomUUID()}`);
+    dependencies.id ?? ((prefix: string) => `${prefix}-${crypto.randomUUID()}`);
   let failedAuthorization: number[] = [];
 
   return async (request: RequestLike, response: ResponseLike) => {
@@ -128,7 +131,11 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
         return send(
           response,
           403,
-          errorBody("UNAUTHORIZED", "Administrative authorization failed", requestId),
+          errorBody(
+            "UNAUTHORIZED",
+            "Administrative authorization failed",
+            requestId,
+          ),
         );
       }
       if (!dependencies.adminToken) {
@@ -150,15 +157,25 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
         return send(
           response,
           429,
-          errorBody("RATE_LIMITED", "Too many failed authorization attempts", requestId),
+          errorBody(
+            "RATE_LIMITED",
+            "Too many failed authorization attempts",
+            requestId,
+          ),
         );
       }
-      if (!tokenMatches(header(request, "authorization"), dependencies.adminToken)) {
+      if (
+        !tokenMatches(header(request, "authorization"), dependencies.adminToken)
+      ) {
         failedAuthorization.push(currentTime);
         return send(
           response,
           401,
-          errorBody("UNAUTHORIZED", "Administrative authorization failed", requestId),
+          errorBody(
+            "UNAUTHORIZED",
+            "Administrative authorization failed",
+            requestId,
+          ),
         );
       }
     }
@@ -170,13 +187,20 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
       return send(
         response,
         503,
-        errorBody("NOT_CONFIGURED", "Demand storage is not configured", requestId),
+        errorBody(
+          "NOT_CONFIGURED",
+          "Demand storage is not configured",
+          requestId,
+        ),
       );
     }
 
     if (method === "GET") {
       try {
-        const url = new URL(request.url ?? "/api/demand", "https://local.invalid");
+        const url = new URL(
+          request.url ?? "/api/demand",
+          "https://local.invalid",
+        );
         const state = deriveDemandState(
           await repository.listDatasets(),
           await repository.listEvents(),
@@ -192,13 +216,18 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           "public, s-maxage=60, stale-while-revalidate=300",
         );
         response.setHeader("ETag", etag);
-        if (header(request, "if-none-match") === etag) return send(response, 304);
+        if (header(request, "if-none-match") === etag)
+          return send(response, 304);
         return send(response, 200, state);
       } catch {
         return send(
           response,
           503,
-          errorBody("STORAGE_FAILURE", "Demand data is temporarily unavailable", requestId),
+          errorBody(
+            "STORAGE_FAILURE",
+            "Demand data is temporarily unavailable",
+            requestId,
+          ),
         );
       }
     }
@@ -254,20 +283,32 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           return send(
             response,
             409,
-            errorBody("CONFLICT", "Idempotency key conflicts with another dataset", requestId),
+            errorBody(
+              "CONFLICT",
+              "Idempotency key conflicts with another dataset",
+              requestId,
+            ),
           );
         }
         if (!message.startsWith("Demand storage")) {
           return send(
             response,
             400,
-            errorBody("INVALID_DATASET", message || "Dataset is invalid", requestId),
+            errorBody(
+              "INVALID_DATASET",
+              message || "Dataset is invalid",
+              requestId,
+            ),
           );
         }
         return send(
           response,
           503,
-          errorBody("STORAGE_FAILURE", "Demand data could not be stored", requestId),
+          errorBody(
+            "STORAGE_FAILURE",
+            "Demand data could not be stored",
+            requestId,
+          ),
         );
       }
     }
@@ -285,10 +326,17 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
         return send(
           response,
           oversized ? 413 : 400,
-          errorBody("INVALID_DATASET", "Administrative event is invalid", requestId),
+          errorBody(
+            "INVALID_DATASET",
+            "Administrative event is invalid",
+            requestId,
+          ),
         );
       }
-      const url = new URL(request.url ?? "/api/demand", "https://local.invalid");
+      const url = new URL(
+        request.url ?? "/api/demand",
+        "https://local.invalid",
+      );
       const datasetId = url.searchParams.get("id")?.trim();
       const action = body.action;
       const expected = body.expectedActiveDatasetId;
@@ -300,7 +348,11 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
         return send(
           response,
           400,
-          errorBody("INVALID_DATASET", "Administrative event is invalid", requestId),
+          errorBody(
+            "INVALID_DATASET",
+            "Administrative event is invalid",
+            requestId,
+          ),
         );
       }
       try {
@@ -314,7 +366,11 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           return send(
             response,
             409,
-            errorBody("CONFLICT", "Active dataset changed; refresh and retry", requestId),
+            errorBody(
+              "CONFLICT",
+              "Active dataset changed; refresh and retry",
+              requestId,
+            ),
           );
         }
         const target = datasets.find(
@@ -344,7 +400,11 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           return send(
             response,
             409,
-            errorBody("CONFLICT", "Active dataset changed; refresh and retry", requestId),
+            errorBody(
+              "CONFLICT",
+              "Active dataset changed; refresh and retry",
+              requestId,
+            ),
           );
         }
         return send(response, 200, updated);
@@ -352,7 +412,11 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
         return send(
           response,
           503,
-          errorBody("STORAGE_FAILURE", "Demand state could not be updated", requestId),
+          errorBody(
+            "STORAGE_FAILURE",
+            "Demand state could not be updated",
+            requestId,
+          ),
         );
       }
     }

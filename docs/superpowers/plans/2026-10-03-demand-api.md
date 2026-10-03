@@ -34,9 +34,11 @@
 ### Task 0: Preserve the Verified Local Demand Baseline
 
 **Files:**
+
 - Commit existing completed Local Demand, Local Economic Pulse, research, test, and documentation changes already present in the working tree
 
 **Interfaces:**
+
 - Consumes: current tested workspace
 - Produces: a clean Git baseline before server-backed behavior changes
 
@@ -62,6 +64,7 @@ git commit -m "Build local economic pulse and demand observatory"
 ### Task 1: Published Dataset Contract and Verification
 
 **Files:**
+
 - Create: `src/economy/demand/api-types.ts`
 - Create: `api/_lib/demand-contract.ts`
 - Create: `api/_lib/demand-contract.test.ts`
@@ -69,6 +72,7 @@ git commit -m "Build local economic pulse and demand observatory"
 - Modify: `tsconfig.server.json`
 
 **Interfaces:**
+
 - Consumes: `CategoryId`, `DemandPoint`, `DemandSeries`, and existing category IDs
 - Produces: `PublishedDemandDataset`, `DemandApiEnvelope`, `DemandApiError`, `DemandPublishRequest`, `DemandAdminEvent`, `validatePublishRequest(value: unknown): DemandPublishRequest`, `canonicalDataset(request, serverFields): PublishedDemandDataset`, `contentFingerprint(dataset): string`
 
@@ -109,12 +113,14 @@ git commit -m "Add verified demand dataset contract"
 ### Task 2: Immutable Private Blob Repository
 
 **Files:**
+
 - Create: `api/_lib/demand-store.ts`
 - Create: `api/_lib/demand-store.test.ts`
 - Modify: `package.json`
 - Modify: `package-lock.json`
 
 **Interfaces:**
+
 - Consumes: `PublishedDemandDataset`, `DemandAdminEvent`
 - Produces: `DemandRepository`, `MemoryDemandRepository`, `VercelBlobDemandRepository`, `deriveDemandState(datasets, events, options): DemandApiEnvelope`
 
@@ -127,7 +133,7 @@ putDataset(dataset: PublishedDemandDataset, idempotencyKey: string): Promise<"cr
 appendEvent(event: DemandAdminEvent): Promise<void>;
 ```
 
-- [ ] **Step 1: Write failing repository tests**
+- [x] **Step 1: Write failing repository tests**
 
 Add tests named:
 
@@ -138,23 +144,23 @@ Add tests named:
 - `makes an idempotency key produce one stored dataset`
 - `maps Blob configuration and storage failures without exposing private URLs`
 
-- [ ] **Step 2: Run the repository test and verify RED**
+- [x] **Step 2: Run the repository test and verify RED**
 
 Run: `npx vitest run api/_lib/demand-store.test.ts`
 
 Expected: FAIL because repository implementations do not exist.
 
-- [ ] **Step 3: Add `@vercel/blob` and implement both repositories**
+- [x] **Step 3: Add `@vercel/blob` and implement both repositories**
 
 Use private access and prefixes `demand/v1/datasets/` and `demand/v1/events/`. Parse each listed object independently. The memory repository is the real test implementation, not a mock. Do not add a mutable index or filesystem adapter.
 
-- [ ] **Step 4: Run focused and full unit tests**
+- [x] **Step 4: Run focused and full unit tests**
 
 Run: `npx vitest run api/_lib/demand-store.test.ts && npm test`
 
 Expected: repository tests and all unit tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add api/_lib/demand-store.ts api/_lib/demand-store.test.ts package.json package-lock.json
@@ -164,15 +170,17 @@ git commit -m "Add immutable demand dataset repository"
 ### Task 3: Secure Vercel Demand Function
 
 **Files:**
+
 - Create: `api/demand.ts`
 - Create: `api/demand.test.ts`
 - Modify: `vercel.json`
 
 **Interfaces:**
+
 - Consumes: `DemandRepository`, contract validation/canonicalization, `DEMAND_ADMIN_TOKEN`, `DEMAND_ALLOWED_ORIGIN`
 - Produces: `createDemandHandler(dependencies): (request, response) => Promise<void>` and default Vercel handler for `GET`, `POST`, `PATCH`
 
-- [ ] **Step 1: Write failing handler tests**
+- [x] **Step 1: Write failing handler tests**
 
 Use `MemoryDemandRepository` and real request/response test doubles. Add tests named:
 
@@ -186,23 +194,23 @@ Use `MemoryDemandRepository` and real request/response test doubles. Add tests n
 - `unconfigured storage or token returns structured 503 without secrets`
 - `disallowed origins and repeated failed authorization are rejected`
 
-- [ ] **Step 2: Run the handler test and verify RED**
+- [x] **Step 2: Run the handler test and verify RED**
 
 Run: `npx vitest run api/demand.test.ts`
 
 Expected: FAIL because the demand handler does not exist.
 
-- [ ] **Step 3: Implement the injected handler and default Vercel wiring**
+- [x] **Step 3: Implement the injected handler and default Vercel wiring**
 
 Use constant-time bearer comparison, request IDs, no-store mutation responses, same-origin policy, bounded per-instance failed-auth guard, exact error codes from the spec, ETags on GET, and a lazy Blob repository so missing configuration maps to `503` rather than import-time failure. Update the Vercel rewrite so `/api/*` functions are resolved before the SPA fallback.
 
-- [ ] **Step 4: Run API, unit, type, and lint checks**
+- [x] **Step 4: Run API, unit, type, and lint checks**
 
 Run: `npx vitest run api/demand.test.ts && npm test && npm run typecheck && npm run lint`
 
 Expected: all pass with no credential or private URL in snapshots/output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add api/demand.ts api/demand.test.ts vercel.json
@@ -212,6 +220,7 @@ git commit -m "Expose secured verified demand API"
 ### Task 4: Resilient Public Client and Provenance UI
 
 **Files:**
+
 - Create: `src/economy/demand/api.ts`
 - Create: `src/economy/demand/api.test.ts`
 - Create: `src/economy/demand/useDemandApi.ts`
@@ -223,10 +232,11 @@ git commit -m "Expose secured verified demand API"
 - Modify: `e2e/demand.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `DemandApiEnvelope`, `PublishedDemandDataset`, existing `DemandBatch` and statistical engine
 - Produces: `fetchDemandApi(options): Promise<DemandApiEnvelope>`, `publishedToDemandBatch(dataset): DemandBatch`, `useDemandApi(): DemandApiState`
 
-- [ ] **Step 1: Write failing API-client tests**
+- [x] **Step 1: Write failing API-client tests**
 
 Add tests named:
 
@@ -242,23 +252,23 @@ Add Playwright route-controlled tests named:
 - `browser imports remain selectable beside verified API data`
 - `homepage pulse identifies verified source or explicit demo fallback`
 
-- [ ] **Step 2: Run focused tests and verify RED**
+- [x] **Step 2: Run focused tests and verify RED**
 
 Run: `npx vitest run src/economy/demand/api.test.ts && npx playwright test e2e/demand.spec.ts`
 
 Expected: FAIL because the client, hook, API source option, and provenance UI do not exist.
 
-- [ ] **Step 3: Implement client validation, conversion, hook, and UI integration**
+- [x] **Step 3: Implement client validation, conversion, hook, and UI integration**
 
 Render demo immediately, fetch with an abort timeout, auto-select an active verified 0-100 dataset only before the user changes source, and preserve good state on refresh failures. Add `Demo Data`, `Verified API Data`, and `This Browser` source options. Show source URL, exact geography level/code, acquisition method, query definitions, observation dates, retrieved/published timestamps, value unit, and abbreviated fingerprint in an accessible provenance section.
 
-- [ ] **Step 4: Run focused, unit, and browser tests**
+- [x] **Step 4: Run focused, unit, and browser tests**
 
 Run: `npx vitest run src/economy/demand/api.test.ts && npm test && npx playwright test e2e/demand.spec.ts`
 
 Expected: focused and all existing demand tests pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/economy/demand e2e/demand.spec.ts
@@ -268,6 +278,7 @@ git commit -m "Integrate verified API demand data"
 ### Task 5: Administrator Publishing and Acquisition Record
 
 **Files:**
+
 - Modify: `src/economy/demand/ImportDialog.tsx`
 - Modify: `src/economy/demand/LocalDemand.tsx`
 - Modify: `src/economy/demand/api.ts`
@@ -280,10 +291,11 @@ git commit -m "Integrate verified API demand data"
 - Modify: `package.json`
 
 **Interfaces:**
+
 - Consumes: validated local `DemandBatch`, protected `POST /api/demand`, protected `PATCH /api/demand`
 - Produces: `publishDemandDataset(request, adminToken, options)`, `demand:publish` CLI reading `DEMAND_ADMIN_TOKEN` from environment, and a dated acquisition log
 
-- [ ] **Step 1: Write failing publishing tests**
+- [x] **Step 1: Write failing publishing tests**
 
 Add unit tests named:
 
@@ -297,27 +309,27 @@ Add browser tests named:
 - `administrator can preview provenance, publish and select verified data`
 - `closing or failing the publish flow erases the admin key and keeps local data`
 
-- [ ] **Step 2: Run publishing tests and verify RED**
+- [x] **Step 2: Run publishing tests and verify RED**
 
 Run: `npx vitest run src/economy/demand/api.test.ts scripts/publish-demand.test.ts && npx playwright test e2e/demand.spec.ts`
 
 Expected: FAIL because publishing UI/client/CLI do not exist.
 
-- [ ] **Step 3: Implement publish mode and CLI**
+- [x] **Step 3: Implement publish mode and CLI**
 
 Keep the admin key only in ImportDialog component memory. Require explicit source URL, acquisition method, retrieval timestamp, exact geography level/code, and shared-scale confirmation. On server failure, retain the local validated import. The CLI accepts `--file`, `--metadata`, and `--endpoint`; it reads the token only from `DEMAND_ADMIN_TOKEN` and never prints it.
 
-- [ ] **Step 4: Record the official acquisition attempt**
+- [x] **Step 4: Record the official acquisition attempt**
 
 Retry the official Google Trends Explore/export workflow once with bounded normal browser behavior. Record date, URL, intended geography/query cohort, HTTP outcome, and whether an official CSV was obtained in `demand-acquisition-log.json`. If the result remains `429`, publish nothing and state that explicitly. Do not call undocumented endpoints or use a rate-limit bypass.
 
-- [ ] **Step 5: Run focused and full demand tests**
+- [x] **Step 5: Run focused and full demand tests**
 
 Run: `npx vitest run src/economy/demand/api.test.ts scripts/publish-demand.test.ts && npx playwright test e2e/demand.spec.ts`
 
 Expected: all pass; acquisition result matches the evidence actually obtained.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/economy/demand scripts package.json research/data/demand-acquisition-log.json e2e/demand.spec.ts
@@ -327,26 +339,28 @@ git commit -m "Add controlled demand dataset publishing"
 ### Task 6: Deployment Documentation, Full Verification, and GitHub Push
 
 **Files:**
+
 - Modify: `docs/local-demand.md`
 - Create: `docs/demand-api-operations.md`
 - Modify: `docs/superpowers/plans/2026-10-03-demand-api.md`
 - Modify: `.gitignore` only if local Vercel artifacts require an explicit exclusion
 
 **Interfaces:**
+
 - Consumes: completed API, storage adapter, public client, publishing workflow
 - Produces: reproducible private Blob/environment setup, publication/rollback instructions, completed verification record
 
-- [ ] **Step 1: Document operations and research interpretation**
+- [x] **Step 1: Document operations and research interpretation**
 
 Document private Blob creation, `DEMAND_ADMIN_TOKEN`, allowed origin, local/preview/production behavior, first publication, activation, archival, recovery, token rotation, API examples without secrets, current acquisition status, and the distinction among demo, verified API, and browser-only data.
 
-- [ ] **Step 2: Run the complete verification suite**
+- [x] **Step 2: Run the complete verification suite**
 
 Run: `npm test && npm run test:research && npm run test:warehouse && npx playwright test && npm run lint && npm run format:check && npm run build && npm audit --omit=dev && git diff --check`
 
 Expected: all tests and checks pass; production dependency audit reports no unresolved production vulnerability.
 
-- [ ] **Step 3: Inspect desktop, tablet, mobile, import, provenance, and print screenshots**
+- [x] **Step 3: Inspect desktop, tablet, mobile, import, provenance, and print screenshots**
 
 Use browser automation at 1440x1000, 820x1180, and 390x844. Verify no page-level overflow, overlapping labels, blank charts, hidden source badges, inaccessible dialog actions, console errors, or API failure regressions.
 

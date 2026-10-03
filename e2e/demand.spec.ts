@@ -69,6 +69,10 @@ test("verified API data becomes the default and exposes complete provenance", as
   await expect(
     provenance.getByRole("link", { name: "Google Trends source" }),
   ).toHaveAttribute("href", /trends\.google\.com/);
+  await page.screenshot({
+    path: "test-results/demand-provenance.png",
+    fullPage: true,
+  });
 });
 
 test("empty, malformed, slow and failed API responses retain labeled demo data", async ({

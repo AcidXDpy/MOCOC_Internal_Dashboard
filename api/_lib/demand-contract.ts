@@ -1,5 +1,9 @@
 import { createHash } from "node:crypto";
-import { categories, type CategoryId, type DemandSeries } from "../../src/economy/demand/types";
+import {
+  categories,
+  type CategoryId,
+  type DemandSeries,
+} from "../../src/economy/demand/types";
 import type {
   DemandComparison,
   DemandFrequency,
@@ -19,11 +23,7 @@ function record(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function text(
-  value: unknown,
-  label: string,
-  maxLength: number,
-): string {
+function text(value: unknown, label: string, maxLength: number): string {
   if (typeof value !== "string" || !value.trim() || value.length > maxLength)
     throw new Error(`${label} is invalid`);
   return value.trim();
@@ -86,7 +86,8 @@ function parseSeries(value: unknown): DemandSeries[] {
     const points = input.points.map((rawPoint) => {
       const point = record(rawPoint, "observation");
       const date = isoDate(point.date);
-      if (dates.has(date)) throw new Error(`Duplicate observation date: ${date}`);
+      if (dates.has(date))
+        throw new Error(`Duplicate observation date: ${date}`);
       dates.add(date);
       const interest = point.interest;
       if (
@@ -121,7 +122,9 @@ export function validatePublishRequest(value: unknown): DemandPublishRequest {
     throw new Error("Demo data cannot be published as verified");
 
   const sourceType = input.sourceType;
-  if (!new Set(["google-trends-csv", "google-trends-api"]).has(String(sourceType)))
+  if (
+    !new Set(["google-trends-csv", "google-trends-api"]).has(String(sourceType))
+  )
     throw new Error("Unsupported source type");
   const valueUnit = input.valueUnit;
   if (
@@ -147,7 +150,11 @@ export function validatePublishRequest(value: unknown): DemandPublishRequest {
 
   const provenanceInput = record(input.provenance, "provenance");
   const acquisitionMethod = provenanceInput.acquisitionMethod;
-  if (!new Set(["official-csv-export", "official-api"]).has(String(acquisitionMethod)))
+  if (
+    !new Set(["official-csv-export", "official-api"]).has(
+      String(acquisitionMethod),
+    )
+  )
     throw new Error("Unsupported acquisition method");
   if (
     (sourceType === "google-trends-csv" &&
@@ -169,7 +176,10 @@ export function validatePublishRequest(value: unknown): DemandPublishRequest {
   } catch {
     throw new Error("source URL is invalid");
   }
-  if (source.protocol !== "https:" || !/(^|\.)google\.com$/.test(source.hostname))
+  if (
+    source.protocol !== "https:" ||
+    !/(^|\.)google\.com$/.test(source.hostname)
+  )
     throw new Error("source URL must be an official Google HTTPS URL");
   const notesInput = provenanceInput.notes;
   if (
@@ -204,8 +214,7 @@ export function validatePublishRequest(value: unknown): DemandPublishRequest {
       originalFilename:
         originalFilename === null ? null : originalFilename.trim(),
       acquisitionMethod: acquisitionMethod as
-        | "official-csv-export"
-        | "official-api",
+        "official-csv-export" | "official-api",
       notes: notesInput.map((note) => note.trim()),
     },
     series: parsedSeries,

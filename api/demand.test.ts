@@ -61,9 +61,7 @@ function request(
     url: options.url ?? "/api/demand",
     body: options.body,
     headers: {
-      ...(options.token
-        ? { authorization: `Bearer ${options.token}` }
-        : {}),
+      ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
       ...(options.origin ? { origin: options.origin } : {}),
       ...(options.idempotencyKey
         ? { "idempotency-key": options.idempotencyKey }
@@ -157,7 +155,9 @@ describe("demand API handler", () => {
     const run = handler(repository);
     const current = await invoke(run, request("GET"));
     expect(current.statusCode).toBe(200);
-    expect((current.body as { datasets: PublishedDemandDataset[] }).datasets).toHaveLength(1);
+    expect(
+      (current.body as { datasets: PublishedDemandDataset[] }).datasets,
+    ).toHaveLength(1);
     expect(current.headers.get("cache-control")).toContain("s-maxage=60");
     expect(current.headers.get("etag")).toMatch(/^"[a-f0-9]{64}"$/);
     expect(current.headers.get("x-content-type-options")).toBe("nosniff");
@@ -166,7 +166,9 @@ describe("demand API handler", () => {
       run,
       request("GET", { url: "/api/demand?include=history" }),
     );
-    expect((history.body as { datasets: PublishedDemandDataset[] }).datasets).toHaveLength(2);
+    expect(
+      (history.body as { datasets: PublishedDemandDataset[] }).datasets,
+    ).toHaveLength(2);
     const notModified = await invoke(run, {
       ...request("GET"),
       headers: { "if-none-match": current.headers.get("etag") },
@@ -185,10 +187,16 @@ describe("demand API handler", () => {
     expect(invalid.statusCode).toBe(401);
     expect({
       ...(missing.body as Record<string, unknown>),
-      error: { ...(missing.body as { error: object }).error, requestId: "same" },
+      error: {
+        ...(missing.body as { error: object }).error,
+        requestId: "same",
+      },
     }).toEqual({
       ...(invalid.body as Record<string, unknown>),
-      error: { ...(invalid.body as { error: object }).error, requestId: "same" },
+      error: {
+        ...(invalid.body as { error: object }).error,
+        requestId: "same",
+      },
     });
   });
 
@@ -205,7 +213,8 @@ describe("demand API handler", () => {
     const repeated = await invoke(run, input);
     expect(created.statusCode).toBe(201);
     expect(repeated.statusCode).toBe(200);
-    const dataset = (created.body as { dataset: PublishedDemandDataset }).dataset;
+    const dataset = (created.body as { dataset: PublishedDemandDataset })
+      .dataset;
     expect(dataset.id).not.toBe("client-id");
     expect(dataset.status).toBe("verified");
     expect(dataset.provenance.contentSha256).toMatch(/^[a-f0-9]{64}$/);
@@ -258,7 +267,9 @@ describe("demand API handler", () => {
       }),
     );
     expect(activate.statusCode).toBe(200);
-    expect((activate.body as { activeDatasetId: string }).activeDatasetId).toBe("one");
+    expect((activate.body as { activeDatasetId: string }).activeDatasetId).toBe(
+      "one",
+    );
     const archive = await invoke(
       run,
       request("PATCH", {
@@ -269,7 +280,9 @@ describe("demand API handler", () => {
       }),
     );
     expect(archive.statusCode).toBe(200);
-    expect((archive.body as { activeDatasetId: null }).activeDatasetId).toBeNull();
+    expect(
+      (archive.body as { activeDatasetId: null }).activeDatasetId,
+    ).toBeNull();
     expect(await repository.listEvents()).toHaveLength(2);
   });
 
@@ -294,7 +307,9 @@ describe("demand API handler", () => {
       }),
     );
     expect(result.statusCode).toBe(409);
-    expect((result.body as { error: { code: string } }).error.code).toBe("CONFLICT");
+    expect((result.body as { error: { code: string } }).error.code).toBe(
+      "CONFLICT",
+    );
     expect(await repository.listEvents()).toEqual(before);
   });
 
@@ -351,8 +366,12 @@ describe("demand API handler", () => {
     );
     expect(getResult.statusCode).toBe(503);
     expect(postResult.statusCode).toBe(503);
-    expect((getResult.body as { error: { code: string } }).error.code).toBe("NOT_CONFIGURED");
-    expect(JSON.stringify([getResult.body, postResult.body])).not.toContain("secret-private-url");
+    expect((getResult.body as { error: { code: string } }).error.code).toBe(
+      "NOT_CONFIGURED",
+    );
+    expect(JSON.stringify([getResult.body, postResult.body])).not.toContain(
+      "secret-private-url",
+    );
   });
 
   it("disallowed origins and repeated failed authorization are rejected", async () => {
@@ -366,7 +385,9 @@ describe("demand API handler", () => {
       }),
     );
     expect(crossOrigin.statusCode).toBe(403);
-    expect((crossOrigin.body as { error: { code: string } }).error.code).toBe("UNAUTHORIZED");
+    expect((crossOrigin.body as { error: { code: string } }).error.code).toBe(
+      "UNAUTHORIZED",
+    );
     let limited = crossOrigin;
     for (let attempt = 0; attempt < 7; attempt += 1) {
       limited = await invoke(
@@ -379,6 +400,8 @@ describe("demand API handler", () => {
       );
     }
     expect(limited.statusCode).toBe(429);
-    expect((limited.body as { error: { code: string } }).error.code).toBe("RATE_LIMITED");
+    expect((limited.body as { error: { code: string } }).error.code).toBe(
+      "RATE_LIMITED",
+    );
   });
 });

@@ -276,11 +276,13 @@ export default function EconomicPlatform() {
           <div>
             <span className="eco-status-dot" />
             <span>
-              {view === "demand" ? "Search signals / represented supply" : view === "pulse"
-                ? "ACS & business patterns"
-                : data
-                  ? `Evidence bundle · ${data.asOfDate}`
-                  : "Loading evidence"}
+              {view === "demand"
+                ? "Search signals / represented supply"
+                : view === "pulse"
+                  ? "ACS & business patterns"
+                  : data
+                    ? `Evidence bundle · ${data.asOfDate}`
+                    : "Loading evidence"}
             </span>
           </div>
         </div>
@@ -298,13 +300,25 @@ export default function EconomicPlatform() {
                   : "observed"
               }
             >
-              {view === "demand" ? "Exploratory demand analysis" : view === "policy" || view === "resilience"
-                ? "Assumption-driven scenario"
-                : "Source-linked evidence"}
+              {view === "demand"
+                ? "Exploratory demand analysis"
+                : view === "policy" || view === "resilience"
+                  ? "Assumption-driven scenario"
+                  : "Source-linked evidence"}
             </Evidence>
           </header>
           {view === "demand" ? (
-            <ViewBoundary key={view}><Suspense fallback={<div className="eco-loading" role="status">Loading Local Demand...</div>}><LocalDemand /></Suspense></ViewBoundary>
+            <ViewBoundary key={view}>
+              <Suspense
+                fallback={
+                  <div className="eco-loading" role="status">
+                    Loading Local Demand...
+                  </div>
+                }
+              >
+                <LocalDemand />
+              </Suspense>
+            </ViewBoundary>
           ) : view === "pulse" ? (
             <ViewBoundary key={view}>
               <Suspense

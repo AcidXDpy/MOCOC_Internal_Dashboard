@@ -1,18 +1,11 @@
 import { createHash } from "node:crypto";
-import {
-  get as blobGet,
-  list as blobList,
-  put as blobPut,
-} from "@vercel/blob";
+import { get as blobGet, list as blobList, put as blobPut } from "@vercel/blob";
 import type {
   DemandAdminEvent,
   DemandApiEnvelope,
   PublishedDemandDataset,
 } from "../../src/economy/demand/api-types";
-import {
-  canonicalDataset,
-  validatePublishRequest,
-} from "./demand-contract";
+import { canonicalDataset, validatePublishRequest } from "./demand-contract";
 
 const DATASET_PREFIX = "demand/v1/datasets/";
 const EVENT_PREFIX = "demand/v1/events/";
@@ -152,9 +145,10 @@ function storedEvent(value: unknown): DemandAdminEvent | null {
     datasetId: input.datasetId,
     occurredAt: input.occurredAt,
     ...(input.expectedActiveDatasetId !== undefined
-      ? { expectedActiveDatasetId: input.expectedActiveDatasetId as
-          | string
-          | null }
+      ? {
+          expectedActiveDatasetId: input.expectedActiveDatasetId as
+            string | null,
+        }
       : {}),
   };
 }
@@ -267,7 +261,9 @@ export class MemoryDemandRepository implements DemandRepository {
   async putDataset(dataset: PublishedDemandDataset, idempotencyKey: string) {
     const existingHash = this.idempotency.get(idempotencyKey);
     if (existingHash && existingHash !== dataset.provenance.contentSha256)
-      throw new Error("Idempotency key is already associated with another dataset");
+      throw new Error(
+        "Idempotency key is already associated with another dataset",
+      );
     const pathname = datasetPath(dataset);
     if (existingHash) return "exists" as const;
     this.idempotency.set(idempotencyKey, dataset.provenance.contentSha256);
@@ -290,7 +286,8 @@ export class VercelBlobDemandRepository implements DemandRepository {
   private readonly client: BlobClient;
 
   constructor(options: { token: string; client?: BlobClient }) {
-    if (!options.token.trim()) throw new Error("Demand storage is not configured");
+    if (!options.token.trim())
+      throw new Error("Demand storage is not configured");
     this.token = options.token;
     this.client =
       options.client ??
@@ -395,7 +392,9 @@ export class VercelBlobDemandRepository implements DemandRepository {
     if (existing) {
       const record = existing as Record<string, unknown>;
       if (record.contentSha256 !== marker.contentSha256)
-        throw new Error("Idempotency key is already associated with another dataset");
+        throw new Error(
+          "Idempotency key is already associated with another dataset",
+        );
       return "exists";
     }
     try {

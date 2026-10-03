@@ -20,13 +20,23 @@ The boundary contains coordinates for 40 directory records. Eight map conservati
 
 ## Search Data and Imports
 
-Default search data is deterministic synthetic data for October 2024 through September 2026, clearly labeled Demo Data and Morris County, NJ (demo). No observed Google data is bundled. The homepage preview is explicitly always the demonstration; the full page supports imports.
+Default search data is deterministic synthetic data for October 2024 through September 2026, clearly labeled Demo Data and Morris County, NJ (demo). No observed Google data is bundled. Both the homepage pulse and full research page prefer an active Verified API Data publication when one is available; otherwise they retain the explicit demonstration label.
+
+The source selector keeps three trust levels separate:
+
+- **Demo Data** is synthetic and never eligible for verified publication.
+- **Verified API Data** is a server-published immutable dataset with an official Google source URL, exact geography, retrieval and publication timestamps, query definitions, value unit and SHA-256 fingerprint.
+- **This Browser** contains user-supplied CSV imports in localStorage. These remain useful for private analysis but are not independently authenticated.
+
+An empty, slow, malformed or unavailable API never promotes demonstration or browser-only values to verified status. Complete server setup and publication procedures are in [Demand API Operations](./demand-api-operations.md).
 
 1. Export **Interest over time** from Google Trends using one geography, date range and search configuration. For cross-category gaps use terms from the same comparison, not separately downloaded independently scaled queries.
 2. Open Local Demand > Import Trends Data > Upload Google Trends CSV.
 3. Review detected rows/dates and assign each term to a distinct industry; verify the actual search geography.
 4. Confirm shared comparison settings only if true, then Import Data.
 5. Select saved geography/comparison; use replace or delete icons to manage imports.
+
+An administrator may choose **Publish verified dataset** after a valid shared-scale import. Publication additionally requires the official Explore URL, retrieval time, exact geography level/code and administrator key. The browser copy is saved before the network request; a failed publication does not discard it. The key exists only in the open dialog's component memory and is cleared on close, success or failure.
 
 Supports one to five term columns; Month, Week, Day or Date headers; ISO dates; common Google metadata; BOM, quoted fields, commas/semicolons/tabs; optional isPartial. Mixed-region columns, duplicate dates, invalid dates, values outside 0-100, files above 2 MB and more than 10,000 observations are rejected. `<1`, blanks, NA and hyphens remain missing; explicit zero remains zero. The downloadable synthetic sample retains its Demo Data label after import.
 
@@ -48,8 +58,8 @@ Three-month change is `100 * (mean(latest 3 months) / mean(prior 3 months) - 1)`
 
 ## Live Source Investigation
 
-Checked October 2, 2026. Google's [official API page](https://developers.google.com/search/apis/trends) still describes limited alpha access. No Trends or BigQuery credential configuration was found in the inspected environment. No live connection is claimed. The [public BigQuery source](https://support.google.com/trends/answer/12764470?hl=en-GB) exposes top/rising queries, not arbitrary complete histories for these ten business categories, so it is not substituted for the required comparison. `DemandProvider` is a future adapter boundary; a live provider must preserve geography and scaling semantics. The official API's consistently scaled values would require a distinct value-unit contract rather than assuming website-style 0-100 indexes.
+Checked October 3, 2026. Google's [official API page](https://developers.google.com/search/apis/trends) describes limited alpha access. No Trends API credential configuration was found in the inspected environment. A bounded retry of the normal public Explore page for one New Jersey five-query cohort returned HTTP 429, so no official CSV was obtained and no verified dataset was published. The exact attempt is recorded in `research/data/demand-acquisition-log.json`. No undocumented endpoint, internal token, proxy or rate-limit bypass was used. The [public BigQuery source](https://support.google.com/trends/answer/12764470?hl=en-GB) exposes top/rising queries, not arbitrary complete histories for these business categories, so it is not substituted for the required comparison. Official API-scaled values remain blocked from the browser's 0-100 engine until a provider-specific normalization adapter exists.
 
 ## Verification
 
-Unit tests cover z-scores, zero variance, percentage changes, incomplete observations, missing series, category normalization, boundary matching, sorting and CSV errors. Browser tests cover homepage/navigation, controls, chart selections, details, real listing links, map, import errors/preview/save/reload/replace/delete, geography, demo labeling, independent-scale suppression, multi-tab persistence, CSV download, print source context and desktop/tablet/mobile layouts. Existing Observatory and Chamber browser regressions run alongside them.
+Unit tests cover z-scores, zero variance, percentage changes, incomplete observations, missing series, category normalization, boundary matching, sorting, CSV errors, canonical fingerprints, immutable storage, authorization, idempotency, stale activation and sanitized failures. Browser tests cover verified provenance, API fallback, administrator publishing/key erasure, homepage/navigation, controls, chart selections, details, real listing links, map, import errors/preview/save/reload/replace/delete, geography, demo labeling, independent-scale suppression, multi-tab persistence, CSV download, print source context and desktop/tablet/mobile layouts. Existing Observatory and Chamber browser regressions run alongside them.

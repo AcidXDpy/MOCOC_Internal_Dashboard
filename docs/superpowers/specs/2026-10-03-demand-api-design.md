@@ -190,7 +190,13 @@ API errors use this envelope:
 ```ts
 type DemandApiError = {
   error: {
-    code: "UNAUTHORIZED" | "NOT_CONFIGURED" | "INVALID_DATASET" | "CONFLICT" | "RATE_LIMITED" | "STORAGE_FAILURE";
+    code:
+      | "UNAUTHORIZED"
+      | "NOT_CONFIGURED"
+      | "INVALID_DATASET"
+      | "CONFLICT"
+      | "RATE_LIMITED"
+      | "STORAGE_FAILURE";
     message: string;
     requestId: string;
   };
