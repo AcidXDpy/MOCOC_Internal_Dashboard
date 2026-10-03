@@ -219,7 +219,12 @@ export function exportAnalysis(batch: DemandBatch, analysis: DemandAnalysis) {
       geography: batch.geography,
       date_start: analysis.start,
       date_end: analysis.end,
-      source: batch.demoSample ? "Demo Data" : batch.source,
+      source:
+        batch.verification === "verified-api"
+          ? "Verified API Data"
+          : batch.demoSample
+            ? "Demo Data"
+            : "This Browser",
       import_date: batch.importedAt,
       common_months: analysis.commonMonths,
       gap_limitation:

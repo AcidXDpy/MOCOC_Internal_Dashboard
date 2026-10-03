@@ -1,5 +1,103 @@
 import { expect, test, type Page } from "@playwright/test";
 
+const verifiedEnvelope = () => ({
+  schemaVersion: "1.0",
+  generatedAt: "2026-10-03T16:00:00.000Z",
+  activeDatasetId: "verified-one",
+  warnings: [],
+  datasets: [
+    {
+      id: "verified-one",
+      schemaVersion: "1.0",
+      status: "verified",
+      name: "Official New Jersey demand",
+      sourceType: "google-trends-csv",
+      valueUnit: "normalized-index-0-100",
+      frequency: "Month",
+      geography: { label: "New Jersey", level: "state", code: "US-NJ" },
+      comparison: { sharedScale: true, method: "single-export" },
+      provenance: {
+        sourceOrganization: "Google",
+        sourceProduct: "Google Trends",
+        sourceUrl: "https://trends.google.com/trends/explore?geo=US-NJ",
+        retrievedAt: "2026-10-03T14:00:00.000Z",
+        publishedAt: "2026-10-03T15:00:00.000Z",
+        originalFilename: "multiTimeline.csv",
+        contentSha256: "a".repeat(64),
+        acquisitionMethod: "official-csv-export",
+        notes: ["Official export"],
+      },
+      series: ["restaurants", "coffee", "fitness"].map((category, c) => ({
+        category,
+        query: category,
+        points: Array.from({ length: 12 }, (_, i) => ({
+          date: `2025-${String(i + 1).padStart(2, "0")}-01`,
+          interest: 25 + c * 15 + i,
+        })),
+      })),
+    },
+  ],
+});
+
+async function routeVerified(page: Page) {
+  await page.route("**/api/demand*", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(verifiedEnvelope()) }),
+  );
+}
+
+test("verified API data becomes the default and exposes complete provenance", async ({ page }) => {
+  await routeVerified(page);
+  await page.goto("/#demand");
+  await expect(page.getByLabel("Demand data source")).toHaveValue("api");
+  await expect(page.locator(".demand-evidence")).toContainText("Verified API Data");
+  await page.getByText("Verified source & provenance", { exact: true }).click();
+  const provenance = page.locator(".demand-provenance");
+  await expect(provenance).toContainText("New Jersey");
+  await expect(provenance).toContainText("state");
+  await expect(provenance).toContainText("US-NJ");
+  await expect(provenance).toContainText("official-csv-export");
+  await expect(provenance).toContainText("restaurants");
+  await expect(provenance).toContainText("aaaaaaaaaaaa");
+  await expect(provenance.getByRole("link", { name: "Google Trends source" })).toHaveAttribute("href", /trends\.google\.com/);
+});
+
+test("empty, malformed, slow and failed API responses retain labeled demo data", async ({ page }) => {
+  const responses: Array<"empty" | "malformed" | "slow" | "failed"> = ["empty", "malformed", "slow", "failed"];
+  for (const kind of responses) {
+    await page.unrouteAll({ behavior: "wait" });
+    await page.route("**/api/demand*", async (route) => {
+      if (kind === "slow") await new Promise((resolve) => setTimeout(resolve, 1200));
+      if (kind === "failed") return route.fulfill({ status: 503, body: "{}" });
+      const body = kind === "malformed" ? { datasets: [{}] } : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] };
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+    });
+    await page.goto("/#demand");
+    await expect(page.getByLabel("Demand data source")).toHaveValue("demo");
+    await expect(page.locator(".demand-evidence")).toContainText("Demo Data");
+  }
+});
+
+test("browser imports remain selectable beside verified API data", async ({ page }) => {
+  await routeVerified(page);
+  await page.goto("/#demand");
+  await page.getByRole("button", { name: "Import Trends Data", exact: true }).click();
+  await upload(page, csv());
+  await save(page);
+  await expect(page.getByLabel("Demand data source").locator("option")).toHaveText(["Demo Data", "Verified API Data", "This Browser"]);
+  await expect(page.getByLabel("Demand data source")).toHaveValue("import");
+  await expect(page.locator(".demand-evidence")).toContainText("Google Trends Import");
+});
+
+test("homepage pulse identifies verified source or explicit demo fallback", async ({ page }) => {
+  await routeVerified(page);
+  await page.goto("/");
+  await expect(page.locator(".demand-home .demand-context")).toContainText("Verified API Data");
+  await page.unrouteAll({ behavior: "wait" });
+  await page.route("**/api/demand*", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ...verifiedEnvelope(), activeDatasetId: null, datasets: [] }) }));
+  await page.reload();
+  await expect(page.locator(".demand-home .demand-context")).toContainText("Demo Data");
+});
+
 test("two browser tabs preserve imports and print keeps source context", async ({
   page,
   context,

@@ -116,7 +116,8 @@
   color: #56705e;
 }
 .demand-demo,
-.demand-import-badge {
+.demand-import-badge,
+.demand-verified-badge {
   display: inline-block;
   border-radius: 3px;
   padding: 3px 7px;
@@ -128,6 +129,34 @@
 .demand-import-badge {
   background: #e2eef3;
   color: #345b72;
+}
+.demand-verified-badge {
+  background: #dcefe4;
+  color: #215f43;
+}
+.demand-provenance {
+  margin: 14px 0;
+}
+.demand-provenance dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 22px;
+  margin: 14px 0 0;
+}
+.demand-provenance dt {
+  color: #687c6f;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.demand-provenance dd {
+  margin: 3px 0 0;
+  color: #294435;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 620px) {
+  .demand-provenance dl {
+    grid-template-columns: 1fr;
+  }
 }
 .demand-error {
   background: #fbedeb;

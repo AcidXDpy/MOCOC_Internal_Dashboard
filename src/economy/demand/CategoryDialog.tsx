@@ -20,6 +20,8 @@ export default function CategoryDialog({
       <p className="demand-context">
         {batch.demoSample ? (
           <strong className="demand-demo">Demo Data</strong>
+        ) : batch.verification === "verified-api" ? (
+          <strong className="demand-verified-badge">Verified API Data</strong>
         ) : (
           <strong>Google Trends Import</strong>
         )}{" "}

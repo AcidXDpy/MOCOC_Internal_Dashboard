@@ -1,11 +1,8 @@
 import type { DemandSeries } from "./types";
 
-export type DemandSourceType =
-  | "google-trends-csv"
-  | "google-trends-api";
+export type DemandSourceType = "google-trends-csv" | "google-trends-api";
 export type DemandValueUnit =
-  | "normalized-index-0-100"
-  | "google-trends-api-scaled";
+  "normalized-index-0-100" | "google-trends-api-scaled";
 export type DemandFrequency = "Month" | "Week" | "Day" | "Date";
 
 export type DemandGeography = {
@@ -38,10 +35,7 @@ export type DemandPublishRequest = {
   frequency: DemandFrequency;
   geography: DemandGeography;
   comparison: DemandComparison;
-  provenance: Omit<
-    DemandProvenance,
-    "publishedAt" | "contentSha256"
-  >;
+  provenance: Omit<DemandProvenance, "publishedAt" | "contentSha256">;
   series: DemandSeries[];
 };
 

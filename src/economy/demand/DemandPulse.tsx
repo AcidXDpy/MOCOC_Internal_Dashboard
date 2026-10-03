@@ -3,9 +3,12 @@ import { demoBatch } from "./demo";
 import { signed, sortSummaries, summarize } from "./engine";
 import { InterestChart } from "./DemandCharts";
 import { Section } from "../shared";
+import { useDemandApi } from "./useDemandApi";
 import "./demand.css";
 export default function DemandPulse({ onExplore }: { onExplore: () => void }) {
-  const data = summarize(demoBatch, 12);
+  const api = useDemandApi();
+  const batch = api.active ?? demoBatch;
+  const data = summarize(batch, 12);
   const gap = sortSummaries(data.rows, "demandGap", "desc")[0];
   const rising = sortSummaries(data.rows, "change3m", "desc")[0];
   const top = sortSummaries(data.rows, "averageInterest", "desc")[0];
@@ -46,9 +49,14 @@ export default function DemandPulse({ onExplore }: { onExplore: () => void }) {
           </div>
         </div>
         <p className="demand-context">
-          <strong className="demand-demo">Demo Data</strong> Search signals are
-          synthetic. Supply uses real public listings. Full page supports your
-          imports.
+          <strong
+            className={api.active ? "demand-verified-badge" : "demand-demo"}
+          >
+            {api.active ? "Verified API Data" : "Demo Data"}
+          </strong>{" "}
+          {api.active
+            ? `Official aggregate source · ${api.active.geography}.`
+            : "Search signals are synthetic. Supply uses real public listings. Full page supports your imports."}
         </p>
       </Section>
     </div>

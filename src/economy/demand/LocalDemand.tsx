@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -32,10 +32,13 @@ import { downloadText, readImports, saveImports, storageKey } from "./store";
 import { GapMatrix, InterestChart } from "./DemandCharts";
 import ImportDialog from "./ImportDialog";
 import CategoryDialog from "./CategoryDialog";
+import { useDemandApi } from "./useDemandApi";
 import "./demand.css";
 const DemandMap = lazy(() => import("./DemandMap"));
 
 export default function LocalDemand() {
+  const api = useDemandApi();
+  const userChoseSource = useRef(false);
   const [saved, setSaved] = useState(readImports);
   useEffect(() => {
     const sync = (e: StorageEvent) => {
@@ -61,12 +64,22 @@ export default function LocalDemand() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortKey>("demandGap");
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  useEffect(() => {
+    if (api.active && !userChoseSource.current) {
+      setSource("api");
+      setSelected(
+        api.active.series.slice(0, 3).map((series) => series.category),
+      );
+    }
+  }, [api.active]);
   const batch =
     source === "demo"
       ? demoBatch
-      : (saved.imports.find((b) => b.id === batchId) ??
-        saved.imports[0] ??
-        null);
+      : source === "api"
+        ? api.active
+        : (saved.imports.find((b) => b.id === batchId) ??
+          saved.imports[0] ??
+          null);
   const analysis = useMemo(
     () => summarize(batch ?? { ...demoBatch, series: [] }, months),
     [batch, months],
@@ -94,7 +107,11 @@ export default function LocalDemand() {
   const geographies =
     source === "demo"
       ? [demoBatch.geography]
-      : [...new Set(saved.imports.map((b) => b.geography))];
+      : source === "api"
+        ? api.active
+          ? [api.active.geography]
+          : []
+        : [...new Set(saved.imports.map((b) => b.geography))];
 
   function save(batch: DemandBatch, replaceId: string) {
     const current = readImports();
@@ -113,6 +130,7 @@ export default function LocalDemand() {
     saveImports(imports);
     setSaved({ imports, error: "" });
     setBatchId(batch.id);
+    userChoseSource.current = true;
     setSource("import");
     setSelected(batch.series.slice(0, 3).map((s) => s.category));
     setNotice(`Imported ${batch.name}. Saved on this browser only.`);
@@ -160,12 +178,14 @@ export default function LocalDemand() {
             aria-label="Demand data source"
             value={source}
             onChange={(e) => {
+              userChoseSource.current = true;
               setSource(e.target.value);
               setDetail(null);
             }}
           >
-            <option value="demo">Demo</option>
-            <option value="import">Imported Google Trends</option>
+            <option value="demo">Demo Data</option>
+            {api.active && <option value="api">Verified API Data</option>}
+            <option value="import">This Browser</option>
           </select>
         </label>
         <label>
@@ -174,12 +194,13 @@ export default function LocalDemand() {
             aria-label="Demand geography"
             value={batch?.geography ?? ""}
             disabled={!geographies.length}
-            onChange={(e) =>
-              setBatchId(
-                saved.imports.find((b) => b.geography === e.target.value)?.id ??
-                  "",
-              )
-            }
+            onChange={(e) => {
+              if (source === "import")
+                setBatchId(
+                  saved.imports.find((b) => b.geography === e.target.value)
+                    ?.id ?? "",
+                );
+            }}
           >
             {!geographies.length && (
               <option value="">No imported geography</option>
@@ -299,10 +320,18 @@ export default function LocalDemand() {
           <div className="demand-evidence">
             <span
               className={
-                batch.demoSample ? "demand-demo" : "demand-import-badge"
+                batch.demoSample
+                  ? "demand-demo"
+                  : batch.verification === "verified-api"
+                    ? "demand-verified-badge"
+                    : "demand-import-badge"
               }
             >
-              {batch.demoSample ? "Demo Data" : "Google Trends Import"}
+              {batch.demoSample
+                ? "Demo Data"
+                : batch.verification === "verified-api"
+                  ? "Verified API Data"
+                  : "Google Trends Import"}
             </span>
             <strong>Search geography: {batch.geography}</strong>
             <span>
@@ -310,13 +339,81 @@ export default function LocalDemand() {
             </span>
           </div>
           <p className="eco-footnote">
-            {batch.demoSample
-              ? "Import Google Trends data to replace demonstration search signals. "
-              : "User-supplied aggregate search-interest indexes, not independently authenticated. "}
+            {batch.verification === "verified-api"
+              ? "Server-published aggregate search-interest indexes with verified provenance. "
+              : batch.demoSample
+                ? "Import Google Trends data to replace demonstration search signals. "
+                : "User-supplied aggregate search-interest indexes, not independently authenticated. "}
             Normalized interest, not raw search counts or individual histories.
             Supply: {localSupply.length} mapped public listings with coordinates
             inside the township boundary; coordinates unverified.
           </p>
+          {batch.verification === "verified-api" && batch.provenance && (
+            <details className="eco-method demand-provenance">
+              <summary>Verified source &amp; provenance</summary>
+              <dl>
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a
+                      href={batch.provenance.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Google Trends source
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Exact geography</dt>
+                  <dd>
+                    {batch.geographyDetail?.label} ·{" "}
+                    {batch.geographyDetail?.level}
+                    {batch.geographyDetail?.code
+                      ? ` · ${batch.geographyDetail.code}`
+                      : ""}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Acquisition</dt>
+                  <dd>{batch.provenance.acquisitionMethod}</dd>
+                </div>
+                <div>
+                  <dt>Retrieved / published</dt>
+                  <dd>
+                    {batch.provenance.retrievedAt} /{" "}
+                    {batch.provenance.publishedAt}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Value unit</dt>
+                  <dd>{batch.valueUnit}</dd>
+                </div>
+                <div>
+                  <dt>Queries</dt>
+                  <dd>
+                    {batch.series
+                      .map((series) => `${series.category}: ${series.query}`)
+                      .join("; ")}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Observation dates</dt>
+                  <dd>
+                    {analysis.start} to {analysis.end}
+                  </dd>
+                </div>
+                <div>
+                  <dt>SHA-256</dt>
+                  <dd>
+                    <code>
+                      {batch.provenance.contentSha256.slice(0, 12)}...
+                    </code>
+                  </dd>
+                </div>
+              </dl>
+            </details>
+          )}
           <p className="eco-footnote">
             Coverage caution: {rows.filter((r) => r.businessCount === 0).length}{" "}
             of {rows.length} selected categories have no represented listings.
@@ -745,7 +842,7 @@ export default function LocalDemand() {
         <Section title="Your imported comparisons">
           <p>
             No Google Trends files are saved in this browser yet. The
-            demonstration remains available under Data Source: Demo.
+            demonstration remains available under Data Source: Demo Data.
           </p>
           <button className="eco-button" onClick={() => setImportOpen(true)}>
             <Upload size={15} />

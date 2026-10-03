@@ -44,6 +44,24 @@ export type DemandBatch = {
   frequency: "Month" | "Week" | "Day" | "Date";
   warnings: string[];
   series: DemandSeries[];
+  verification?: "demo" | "browser" | "verified-api";
+  geographyDetail?: {
+    label: string;
+    level: "state" | "metro" | "county" | "other";
+    code: string | null;
+  };
+  valueUnit?: "normalized-index-0-100" | "google-trends-api-scaled";
+  provenance?: {
+    sourceOrganization: "Google";
+    sourceProduct: "Google Trends";
+    sourceUrl: string;
+    retrievedAt: string;
+    publishedAt: string;
+    originalFilename: string | null;
+    contentSha256: string;
+    acquisitionMethod: "official-csv-export" | "official-api";
+    notes: string[];
+  };
 };
 export type CategorySummary = {
   category: CategoryId;
