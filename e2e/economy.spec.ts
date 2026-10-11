@@ -15,6 +15,19 @@ const routes = [
   "evidence",
   "research",
 ];
+
+test("MOCA is the product name across the economic platform", async ({
+  page,
+}) => {
+  await page.goto("/#overview");
+  await expect(page).toHaveTitle("MOCA");
+  await expect(page.locator(".eco-brand strong")).toHaveText("MOCA");
+  await expect(page.locator(".eco-page-heading > div > p")).toHaveText(
+    "Mount Olive / MOCA",
+  );
+  await expect(page.locator(".eco-footer")).toContainText("MOCA");
+});
+
 test("all analysis views load without runtime errors and expose real content", async ({
   page,
 }) => {
@@ -142,10 +155,7 @@ test("legacy Chamber workspace remains reachable with return navigation", async 
 }) => {
   await page.goto("/chamber");
   await expect(page.locator(".app-main-shell")).toBeVisible();
-  await page
-    .getByRole("link", { name: "Economic Observatory", exact: true })
-    .first()
-    .click();
+  await page.getByRole("link", { name: "MOCA", exact: true }).first().click();
   await expect(page.locator(".eco-page-heading h1")).toHaveText(
     "Local economy",
   );

@@ -67,6 +67,29 @@ describe("demand API client", () => {
     expect(result).toEqual({ status: "unavailable", reason: "invalid" });
   });
 
+  it("rejects enum-shaped nested category values", async () => {
+    const malformed = published();
+    (malformed.series[0] as unknown as { category: unknown }).category = [
+      "restaurants",
+    ];
+    const result = await fetchDemandApi({
+      fetcher: vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              schemaVersion: "1.0",
+              generatedAt: "2026-10-03T16:00:00.000Z",
+              activeDatasetId: malformed.id,
+              datasets: [malformed],
+              warnings: [],
+            }),
+            { status: 200 },
+          ),
+      ),
+    });
+    expect(result).toEqual({ status: "unavailable", reason: "invalid" });
+  });
+
   it("aborts slow requests and returns a typed unavailable result", async () => {
     const fetcher = vi.fn(
       (_url: URL | RequestInfo, options?: RequestInit) =>

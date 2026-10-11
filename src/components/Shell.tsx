@@ -92,7 +92,7 @@ export function Shell({
           href="/"
           className="mt-5 block border-t border-white/10 px-3 pt-4 text-sm text-signal-teal"
         >
-          Economic Observatory
+          MOCA
         </a>
       </aside>
       <main className="app-main-shell lg:pl-64">
@@ -114,7 +114,7 @@ export function Shell({
             href="/"
             className="mb-4 inline-block text-xs text-signal-teal lg:hidden"
           >
-            Economic Observatory
+            MOCA
           </a>
           {children}
           <footer className="mt-10 border-t border-white/10 pt-5 text-center text-xs text-slate-500">

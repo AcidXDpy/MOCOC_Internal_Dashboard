@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type {
   DemandAdminEvent,
   PublishedDemandDataset,
@@ -176,5 +176,115 @@ describe("immutable demand repository", () => {
       expect(String(error)).not.toContain("private.blob");
       expect(String(error)).not.toContain("secret-token");
     }
+  });
+
+  it("orders accepted events by durable commit order, not request timestamp", () => {
+    const result = deriveDemandState(
+      ["one", "two", "three"].map((id) => ({
+        pathname: id,
+        value: dataset(id),
+      })),
+      [
+        {
+          pathname: "e1",
+          order: "001",
+          value: {
+            ...event("activate", "one", 1),
+            expectedActiveDatasetId: null,
+          },
+        },
+        {
+          pathname: "e2",
+          order: "002",
+          value: {
+            ...event("activate", "two", 3),
+            expectedActiveDatasetId: "one",
+          },
+        },
+        {
+          pathname: "e3",
+          order: "003",
+          value: {
+            ...event("activate", "three", 2),
+            expectedActiveDatasetId: "one",
+          },
+        },
+      ],
+      { now: "2026-10-03T16:00:00.000Z" },
+    );
+    expect(result.activeDatasetId).toBe("two");
+  });
+
+  it("keeps the displaced active dataset in reproducible history", () => {
+    const result = deriveDemandState(
+      ["one", "two"].map((id) => ({ pathname: id, value: dataset(id) })),
+      [
+        {
+          pathname: "e1",
+          order: "001",
+          value: {
+            ...event("activate", "one", 1),
+            expectedActiveDatasetId: null,
+          },
+        },
+        {
+          pathname: "e2",
+          order: "002",
+          value: {
+            ...event("activate", "two", 2),
+            expectedActiveDatasetId: "one",
+          },
+        },
+      ],
+      { includeHistory: true, now: "2026-10-03T16:00:00.000Z" },
+    );
+    expect(result.datasets.map((item) => item.id)).toEqual(["one", "two"]);
+  });
+
+  it("repairs an idempotency marker left before its dataset write", async () => {
+    const candidate = dataset("one");
+    const marker = JSON.stringify({
+      datasetId: candidate.id,
+      contentSha256: candidate.provenance.contentSha256,
+    });
+    const put = vi.fn(async (pathname: string) => ({ pathname }));
+    const repository = new VercelBlobDemandRepository({
+      token: "token",
+      client: {
+        list: async () => ({ blobs: [], hasMore: false }),
+        get: async (pathname: string) =>
+          pathname.includes("idempotency")
+            ? { statusCode: 200 as const, stream: new Response(marker).body! }
+            : null,
+        put,
+      },
+    });
+    expect(await repository.putDataset(candidate, "retry-key")).toBe("created");
+    expect(put).toHaveBeenCalledWith(
+      expect.stringContaining("demand/v1/datasets/one-"),
+      expect.any(String),
+      expect.any(Object),
+    );
+  });
+
+  it("fails the whole state read when a stored event cannot be fetched", async () => {
+    const repository = new VercelBlobDemandRepository({
+      token: "token",
+      client: {
+        list: async () => ({
+          blobs: [
+            { pathname: "demand/v1/events/e.json", uploadedAt: new Date() },
+          ],
+          hasMore: false,
+        }),
+        get: async () => {
+          throw new Error("network unavailable");
+        },
+        put: async (pathname: string) => ({ pathname }),
+      },
+    });
+    await expect(repository.listEvents()).rejects.toThrow(
+      "Demand storage operation failed",
+    );
   });
 });

@@ -153,20 +153,22 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
       failedAuthorization = failedAuthorization.filter(
         (time) => currentTime - time < AUTH_FAILURE_WINDOW_MS,
       );
-      if (failedAuthorization.length >= AUTH_FAILURE_LIMIT) {
-        return send(
-          response,
-          429,
-          errorBody(
-            "RATE_LIMITED",
-            "Too many failed authorization attempts",
-            requestId,
-          ),
-        );
-      }
-      if (
-        !tokenMatches(header(request, "authorization"), dependencies.adminToken)
-      ) {
+      const authorized = tokenMatches(
+        header(request, "authorization"),
+        dependencies.adminToken,
+      );
+      if (!authorized) {
+        if (failedAuthorization.length >= AUTH_FAILURE_LIMIT) {
+          return send(
+            response,
+            429,
+            errorBody(
+              "RATE_LIMITED",
+              "Too many failed authorization attempts",
+              requestId,
+            ),
+          );
+        }
         failedAuthorization.push(currentTime);
         return send(
           response,
@@ -178,6 +180,7 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           ),
         );
       }
+      failedAuthorization = [];
     }
 
     let repository: DemandRepository;
@@ -395,7 +398,12 @@ export function createDemandHandler(dependencies: HandlerDependencies) {
           await repository.listEvents(),
           { includeHistory: true, now: now() },
         );
-        const expectedResult = action === "activate" ? datasetId : null;
+        const expectedResult =
+          action === "activate"
+            ? datasetId
+            : current.activeDatasetId === datasetId
+              ? null
+              : current.activeDatasetId;
         if (updated.activeDatasetId !== expectedResult) {
           return send(
             response,

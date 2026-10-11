@@ -205,11 +205,7 @@ export default function EconomicPlatform() {
       <aside className={`eco-sidebar ${mobileOpen ? "open" : ""}`}>
         <div className="eco-brand">
           <img src={logo} alt="Mount Olive Area Chamber of Commerce" />
-          <strong>
-            Economic
-            <br />
-            Observatory
-          </strong>
+          <strong>MOCA</strong>
           <span>Mount Olive, New Jersey</span>
         </div>
         <button
@@ -289,7 +285,7 @@ export default function EconomicPlatform() {
         <div className="eco-content">
           <header className="eco-page-heading">
             <div>
-              <p>Mount Olive / Economic Observatory</p>
+              <p>Mount Olive / MOCA</p>
               <h1>{current.label}</h1>
               <span>{current.scope}</span>
             </div>
@@ -375,7 +371,7 @@ export default function EconomicPlatform() {
             </ViewBoundary>
           )}
           <footer className="eco-footer">
-            <span>Mount Olive Economic Observatory</span>
+            <span>MOCA</span>
             <span>Developed by Nakul Ramprasad</span>
           </footer>
         </div>

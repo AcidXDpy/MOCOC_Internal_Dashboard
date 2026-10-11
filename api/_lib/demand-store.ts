@@ -13,6 +13,7 @@ const IDEMPOTENCY_PREFIX = "demand/v1/idempotency/";
 
 export type RepositoryItem<T> = {
   pathname: string;
+  order?: string;
   value?: T;
   error?: string;
 };
@@ -28,7 +29,7 @@ export interface DemandRepository {
 }
 
 type BlobListResult = {
-  blobs: Array<{ pathname: string }>;
+  blobs: Array<{ pathname: string; uploadedAt?: Date }>;
   cursor?: string;
   hasMore: boolean;
 };
@@ -175,32 +176,35 @@ export function deriveDemandState(
   if (invalidDatasets)
     warnings.push(warning(invalidDatasets, "stored dataset"));
 
-  const events: DemandAdminEvent[] = [];
+  const events: Array<{ event: DemandAdminEvent; order: string }> = [];
   let invalidEvents = 0;
   for (const item of eventItems) {
     const event = item.error ? null : storedEvent(item.value);
     if (!event) invalidEvents += 1;
-    else events.push(event);
+    else
+      events.push({
+        event,
+        order: item.order ?? `${event.occurredAt}|${event.id}`,
+      });
   }
   if (invalidEvents)
     warnings.push(warning(invalidEvents, "administrative event"));
 
-  events.sort(
-    (left, right) =>
-      left.occurredAt.localeCompare(right.occurredAt) ||
-      left.id.localeCompare(right.id),
-  );
+  events.sort((left, right) => left.order.localeCompare(right.order));
   let activeDatasetId: string | null = null;
   const superseded = new Set<string>();
   const archived = new Set<string>();
-  for (const event of events) {
+  for (const { event } of events) {
     if (
       event.expectedActiveDatasetId !== undefined &&
       event.expectedActiveDatasetId !== activeDatasetId
     )
       continue;
     if (event.type === "activate") {
+      if (activeDatasetId && activeDatasetId !== event.datasetId)
+        superseded.add(activeDatasetId);
       activeDatasetId = event.datasetId;
+      superseded.delete(event.datasetId);
       archived.delete(event.datasetId);
     } else if (event.type === "supersede") {
       superseded.add(event.datasetId);
@@ -249,6 +253,7 @@ export class MemoryDemandRepository implements DemandRepository {
   >();
   private readonly events: RepositoryItem<DemandAdminEvent>[] = [];
   private readonly idempotency = new Map<string, string>();
+  private eventSequence = 0;
 
   async listDatasets() {
     return clone([...this.datasets.values()]);
@@ -273,7 +278,12 @@ export class MemoryDemandRepository implements DemandRepository {
 
   async appendEvent(event: DemandAdminEvent) {
     const pathname = eventPath(event);
-    this.events.push({ pathname, value: clone(event) });
+    this.eventSequence += 1;
+    this.events.push({
+      pathname,
+      order: String(this.eventSequence).padStart(12, "0"),
+      value: clone(event),
+    });
   }
 }
 
@@ -298,8 +308,8 @@ export class VercelBlobDemandRepository implements DemandRepository {
       } satisfies BlobClient);
   }
 
-  private async paths(prefix: string) {
-    const paths: string[] = [];
+  private async entries(prefix: string) {
+    const entries: Array<{ pathname: string; order: string }> = [];
     let cursor: string | undefined;
     try {
       do {
@@ -308,10 +318,15 @@ export class VercelBlobDemandRepository implements DemandRepository {
           ...(cursor ? { cursor } : {}),
           token: this.token,
         });
-        paths.push(...result.blobs.map((blob) => blob.pathname));
+        entries.push(
+          ...result.blobs.map((blob) => ({
+            pathname: blob.pathname,
+            order: `${blob.uploadedAt?.toISOString() ?? ""}|${blob.pathname}`,
+          })),
+        );
         cursor = result.hasMore ? result.cursor : undefined;
       } while (cursor);
-      return paths;
+      return entries;
     } catch {
       throw storageFailure();
     }
@@ -339,15 +354,20 @@ export class VercelBlobDemandRepository implements DemandRepository {
     prefix: string,
     parse: (value: unknown) => T | null,
   ): Promise<RepositoryItem<T>[]> {
-    const paths = await this.paths(prefix);
+    const entries = await this.entries(prefix);
     return Promise.all(
-      paths.map(async (pathname) => {
+      entries.map(async ({ pathname, order }) => {
         try {
           const value = parse(await this.read(pathname));
           return value
-            ? { pathname, value }
-            : { pathname, error: "invalid stored object" };
-        } catch {
+            ? { pathname, order, value }
+            : { pathname, order, error: "invalid stored object" };
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            error.message === "Demand storage operation failed"
+          )
+            throw error;
           return { pathname, error: "invalid stored object" };
         }
       }),
@@ -395,18 +415,26 @@ export class VercelBlobDemandRepository implements DemandRepository {
         throw new Error(
           "Idempotency key is already associated with another dataset",
         );
-      return "exists";
-    }
-    try {
-      await this.write(markerPath, marker);
-    } catch {
-      const concurrent = await this.read(markerPath).catch(() => null);
+      const existingDataset = storedDataset(
+        await this.read(datasetPath(dataset)).catch(() => null),
+      );
       if (
-        !concurrent ||
-        (concurrent as Record<string, unknown>).contentSha256 !==
-          marker.contentSha256
+        existingDataset?.provenance.contentSha256 ===
+        dataset.provenance.contentSha256
       )
-        throw storageFailure();
+        return "exists";
+    } else {
+      try {
+        await this.write(markerPath, marker);
+      } catch {
+        const concurrent = await this.read(markerPath).catch(() => null);
+        if (
+          !concurrent ||
+          (concurrent as Record<string, unknown>).contentSha256 !==
+            marker.contentSha256
+        )
+          throw storageFailure();
+      }
     }
     const pathname = datasetPath(dataset);
     try {

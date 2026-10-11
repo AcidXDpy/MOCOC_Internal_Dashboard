@@ -38,12 +38,14 @@ export default function ImportDialog({
     useState<DemandPublishRequest["geography"]["level"]>("state");
   const [geographyCode, setGeographyCode] = useState("");
   const [adminToken, setAdminToken] = useState("");
+  const [savedBatch, setSavedBatch] = useState<DemandBatch | null>(null);
   const version = useRef(0);
   async function upload(file?: File) {
     const token = ++version.current;
     setParsed(null);
     setError("");
     setComparable(false);
+    setSavedBatch(null);
     if (!file) return;
     if (file.size > 2_000_000) {
       setError("File exceeds the 2 MB limit.");
@@ -84,7 +86,7 @@ export default function ImportDialog({
       );
       return;
     }
-    const batch: DemandBatch = {
+    const batch: DemandBatch = savedBatch ?? {
       id: crypto.randomUUID(),
       name: filename,
       filename,
@@ -118,13 +120,22 @@ export default function ImportDialog({
       );
       return;
     }
-    try {
-      onSave(batch, replaceId);
-      if (!publish || !onPublish) {
-        close();
+    if (!savedBatch) {
+      try {
+        onSave(batch, replaceId);
+        setSavedBatch(batch);
+      } catch (e) {
+        setError((e as Error).message);
+        setAdminToken("");
         return;
       }
-      setBusy(true);
+    }
+    if (!publish || !onPublish) {
+      close();
+      return;
+    }
+    setBusy(true);
+    try {
       const request: DemandPublishRequest = {
         name: batch.name,
         sourceType: "google-trends-csv",

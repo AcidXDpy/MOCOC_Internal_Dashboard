@@ -187,11 +187,14 @@ test("administrator can preview provenance, publish and select verified data", a
         body: JSON.stringify(verifiedEnvelope()),
       });
     }
+    const isFreshRead = new URL(route.request().url()).searchParams.has(
+      "refresh",
+    );
     return route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(
-        active
+        active && isFreshRead
           ? verifiedEnvelope()
           : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] },
       ),
@@ -218,23 +221,42 @@ test("administrator can preview provenance, publish and select verified data", a
 test("closing or failing the publish flow erases the admin key and keeps local data", async ({
   page,
 }) => {
-  await page.route("**/api/demand*", (route) =>
-    route.request().method() === "POST"
-      ? route.fulfill({
-          status: 503,
-          contentType: "application/json",
-          body: "{}",
-        })
-      : route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            ...verifiedEnvelope(),
-            activeDatasetId: null,
-            datasets: [],
-          }),
-        }),
-  );
+  let fail = true;
+  let active = false;
+  await page.route("**/api/demand*", (route) => {
+    if (route.request().method() === "POST")
+      return fail
+        ? route.fulfill({
+            status: 503,
+            contentType: "application/json",
+            body: "{}",
+          })
+        : route.fulfill({
+            status: 201,
+            contentType: "application/json",
+            body: JSON.stringify({
+              dataset: verifiedEnvelope().datasets[0],
+              outcome: "created",
+            }),
+          });
+    if (route.request().method() === "PATCH") {
+      active = true;
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(verifiedEnvelope()),
+      });
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        active
+          ? verifiedEnvelope()
+          : { ...verifiedEnvelope(), activeDatasetId: null, datasets: [] },
+      ),
+    });
+  });
   await page.goto("/#demand");
   await page
     .getByRole("button", { name: "Import Trends Data", exact: true })
@@ -252,11 +274,40 @@ test("closing or failing the publish flow erases the admin key and keeps local d
           .length,
     ),
   ).toBe(1);
-  await page.getByRole("button", { name: "Close dialog" }).click();
+  fail = false;
+  await page.getByLabel("Administrator key").fill("retry-admin-key");
+  await page.getByRole("button", { name: "Publish Verified Data" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("mococ.local-demand.v1") ?? "[]")
+          .length,
+    ),
+  ).toBe(1);
+});
+
+test("local save failure does not claim the browser copy was kept", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => {
+      throw new DOMException("storage blocked", "QuotaExceededError");
+    };
+  });
+  await page.goto("/#demand");
   await page
     .getByRole("button", { name: "Import Trends Data", exact: true })
     .click();
-  await expect(page.getByLabel("Administrator key")).toHaveCount(0);
+  await upload(page, csv());
+  await page.getByRole("checkbox", { name: /These columns came/ }).check();
+  await page.getByRole("button", { name: "Import Data", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText(
+    "Storage may be disabled or full",
+  );
+  await expect(page.getByRole("alert")).not.toContainText(
+    "browser copy was kept",
+  );
 });
 
 test("two browser tabs preserve imports and print keeps source context", async ({

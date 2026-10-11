@@ -205,4 +205,12 @@ describe("verified demand publication contract", () => {
     expect(publicJson).not.toContain("blob-secret");
     expect(publicJson).not.toContain("private.blob.vercel-storage.com");
   });
+
+  it("rejects non-string enum-shaped category values", () => {
+    const value = validRequest() as unknown as {
+      series: Array<Record<string, unknown>>;
+    };
+    value.series[0].category = ["restaurants"];
+    expect(() => validatePublishRequest(value)).toThrow("unsupported category");
+  });
 });

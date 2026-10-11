@@ -1,4 +1,4 @@
-# Mount Olive Economic Observatory
+# MOCA
 
 A local economic research platform deployed through the Mount Olive Area Chamber of Commerce. The economy is the primary unit of analysis.
 

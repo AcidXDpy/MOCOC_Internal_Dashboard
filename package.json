@@ -25,12 +25,15 @@
     "data:refresh-census": "tsx scripts/refresh-census.ts",
     "demand:publish": "tsx scripts/publish-demand.ts"
   },
+  "overrides": {
+    "katex": "0.18.10"
+  },
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^7.4.0",
     "@vercel/blob": "^2.8.0",
     "d3-force": "^3.0.0",
     "javascript-lp-solver": "^1.0.3",
-    "katex": "^0.18.7",
+    "katex": "0.18.10",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
     "ml-matrix": "^6.15.0",

@@ -286,6 +286,32 @@ describe("demand API handler", () => {
     expect(await repository.listEvents()).toHaveLength(2);
   });
 
+  it("archives an inactive historical dataset without conflicting", async () => {
+    const repository = new MemoryDemandRepository();
+    await seed(repository, "one", 1);
+    await seed(repository, "two", 2);
+    await repository.appendEvent({
+      id: "existing",
+      type: "activate",
+      datasetId: "one",
+      occurredAt: "2026-10-03T15:03:00.000Z",
+      expectedActiveDatasetId: null,
+    });
+    const result = await invoke(
+      handler(repository),
+      request("PATCH", {
+        url: "/api/demand?id=two",
+        body: { action: "archive", expectedActiveDatasetId: "one" },
+        token: ADMIN_TOKEN,
+        origin: "https://allowed.example",
+      }),
+    );
+    expect(result.statusCode).toBe(200);
+    expect((result.body as { activeDatasetId: string }).activeDatasetId).toBe(
+      "one",
+    );
+  });
+
   it("PATCH rejects a stale expected active id with 409 and does not mutate state", async () => {
     const repository = new MemoryDemandRepository();
     await seed(repository, "one", 1);
@@ -403,5 +429,15 @@ describe("demand API handler", () => {
     expect((limited.body as { error: { code: string } }).error.code).toBe(
       "RATE_LIMITED",
     );
+    const authorized = await invoke(
+      run,
+      request("POST", {
+        body: publication(),
+        token: ADMIN_TOKEN,
+        origin: "https://allowed.example",
+        idempotencyKey: "valid-after-failures",
+      }),
+    );
+    expect(authorized.statusCode).toBe(201);
   });
 });

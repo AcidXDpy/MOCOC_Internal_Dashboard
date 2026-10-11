@@ -19,7 +19,9 @@ export function useDemandApi(): DemandApiState {
   });
   useEffect(() => {
     let current = true;
-    void fetchDemandApi().then((result) => {
+    void fetchDemandApi({
+      endpoint: revision ? `/api/demand?refresh=${revision}` : "/api/demand",
+    }).then((result) => {
       if (!current) return;
       if (result.status === "unavailable") {
         setState((existing) =>

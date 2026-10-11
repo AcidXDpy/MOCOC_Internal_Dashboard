@@ -109,9 +109,7 @@ export default function App() {
   ) {
     return (
       <Suspense
-        fallback={
-          <div className="p-8 text-white">Loading economic observatory...</div>
-        }
+        fallback={<div className="p-8 text-white">Loading MOCA...</div>}
       >
         <EconomicPlatform />
       </Suspense>

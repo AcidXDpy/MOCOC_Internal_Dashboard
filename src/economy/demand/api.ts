@@ -34,8 +34,9 @@ function validSeries(value: unknown): value is DemandSeries[] {
     if (!raw || typeof raw !== "object") return false;
     const series = raw as Record<string, unknown>;
     if (
-      !categoryIds.has(String(series.category)) ||
-      mapped.has(String(series.category)) ||
+      typeof series.category !== "string" ||
+      !categoryIds.has(series.category) ||
+      mapped.has(series.category) ||
       typeof series.query !== "string" ||
       !series.query ||
       !Array.isArray(series.points) ||
@@ -43,7 +44,7 @@ function validSeries(value: unknown): value is DemandSeries[] {
       series.points.length > 10_000
     )
       return false;
-    mapped.add(String(series.category));
+    mapped.add(series.category);
     const dates = new Set<string>();
     return series.points.every((rawPoint) => {
       if (!rawPoint || typeof rawPoint !== "object") return false;
@@ -145,10 +146,12 @@ export async function fetchDemandApi(
     options.timeoutMs ?? 900,
   );
   try {
-    const response = await (options.fetcher ?? fetch)(
-      options.endpoint ?? "/api/demand",
-      { signal: controller.signal, headers: { Accept: "application/json" } },
-    );
+    const endpoint = options.endpoint ?? "/api/demand";
+    const response = await (options.fetcher ?? fetch)(endpoint, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+      ...(endpoint.includes("refresh=") ? { cache: "no-store" as const } : {}),
+    });
     if (!response.ok) return { status: "unavailable", reason: "network" };
     const envelope = parseEnvelope(await response.json());
     return envelope

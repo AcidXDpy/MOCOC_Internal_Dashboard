@@ -70,7 +70,7 @@ function parseSeries(value: unknown): DemandSeries[] {
   const seenCategories = new Set<string>();
   return value.map((raw, seriesIndex) => {
     const input = record(raw, `series ${seriesIndex + 1}`);
-    if (!categoryIds.has(String(input.category)))
+    if (typeof input.category !== "string" || !categoryIds.has(input.category))
       throw new Error(`Series ${seriesIndex + 1} has an unsupported category`);
     const category = input.category as CategoryId;
     if (seenCategories.has(category))
