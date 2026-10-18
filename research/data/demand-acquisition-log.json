@@ -29,6 +29,37 @@
         "No undocumented endpoint, internal token, proxy, or rate-limit bypass was used.",
         "No verified dataset was created or published from this attempt."
       ]
+    },
+    {
+      "attemptedAt": "2026-10-18T14:19:47.000Z",
+      "sourceOrganization": "Google",
+      "sourceProduct": "Google Trends Explore",
+      "workflow": "official-browser-explore-and-export",
+      "url": "https://trends.google.com/trends/explore?date=today%205-y&geo=US-NJ&q=restaurants%2Ccoffee%2Cfitness%2Chome%20improvement%2Cchildcare",
+      "geography": {
+        "label": "New Jersey",
+        "level": "state",
+        "code": "US-NJ"
+      },
+      "window": "today 5-y",
+      "queries": [
+        "restaurants",
+        "coffee",
+        "fitness",
+        "home improvement",
+        "childcare"
+      ],
+      "officialCsvObtained": true,
+      "rawFile": "google-trends-new-jersey-2021-10-17_2026-10-18.csv",
+      "rawFileSha256": "b62f90ad6cccaba68b7ebd809df2a6251ce4e58faa91ea04e1a1d16387b09d6f",
+      "parsedObservations": 262,
+      "published": false,
+      "notes": [
+        "The CSV was downloaded with the Interest over time export control on the official Google Trends Explore page.",
+        "All five terms are columns in one export and therefore share a comparison scale.",
+        "The October 2026 partial month was excluded from the complete-month analysis.",
+        "The verified API dataset was not published because no administrator credential was available."
+      ]
     }
   ]
 }

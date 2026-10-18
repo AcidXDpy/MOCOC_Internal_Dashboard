@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0",
+  "analyzedAt": "2026-10-18T14:21:27.760Z",
+  "source": {
+    "organization": "Google",
+    "product": "Google Trends",
+    "url": "https://trends.google.com/trends/explore?date=today%205-y&geo=US-NJ&q=restaurants%2Ccoffee%2Cfitness%2Chome%20improvement%2Cchildcare",
+    "retrievedAt": "2026-10-18T14:19:47.000Z",
+    "geography": {
+      "label": "New Jersey",
+      "level": "state",
+      "code": "US-NJ"
+    },
+    "rawFile": "google-trends-new-jersey-2021-10-17_2026-10-18.csv",
+    "rawFileSha256": "b62f90ad6cccaba68b7ebd809df2a6251ce4e58faa91ea04e1a1d16387b09d6f",
+    "frequency": "Week",
+    "observationCount": 262,
+    "observationStart": "2021-10-17",
+    "observationEnd": "2026-10-18",
+    "sharedScale": true
+  },
+  "method": {
+    "primaryWindow": {
+      "start": "2025-10",
+      "end": "2026-09",
+      "commonCompleteMonths": 12
+    },
+    "partialPeriodPolicy": "October 2026 was excluded because the export was retrieved during that month and its last weekly observation began on the retrieval date.",
+    "monthlyAggregation": "Unweighted arithmetic mean of non-missing weekly Google Trends observations whose start dates fall within each month.",
+    "demandMeasure": "Mean monthly Google Trends interest over the 12 common complete months.",
+    "supplyMeasure": "Mapped category listings divided by all 8 mapped public Chamber-directory listings with coordinates inside the township boundary.",
+    "gapFormula": "z(demand across the five-category comparison cohort) minus z(supply share across the same cohort)",
+    "classification": {
+      "highInterestLowerSupply": "gap >= 0.75",
+      "supplyHeavy": "gap <= -0.75",
+      "balanced": "otherwise"
+    }
+  },
+  "supplyContext": {
+    "directorySnapshot": "2026-07-16",
+    "boundaryMatchedListings": 40,
+    "mappedListingsAllTaxonomyCategories": 8,
+    "unclassifiedBoundaryMatchedListings": 32,
+    "isBusinessCensus": false
+  },
+  "primaryResults": [
+    {
+      "category": "restaurants",
+      "query": "restaurants",
+      "averageInterest": 55.3125,
+      "latestCompleteMonthInterest": 46.25,
+      "threeMonthChangePercent": -1.1304347826086913,
+      "mappedListingCount": 3,
+      "supplySharePercent": 37.5,
+      "demandZ": 0.7138125249998136,
+      "supplyZ": 1.5811388300841898,
+      "demandGap": -0.8673263050843761,
+      "signal": "Supply-heavy"
+    },
+    {
+      "category": "coffee",
+      "query": "coffee",
+      "averageInterest": 75.73333333333333,
+      "latestCompleteMonthInterest": 71.25,
+      "threeMonthChangePercent": -13.343356511933846,
+      "mappedListingCount": 0,
+      "supplySharePercent": 0,
+      "demandZ": 1.4117606506530114,
+      "supplyZ": -0.7905694150420949,
+      "demandGap": 2.202330065695106,
+      "signal": "High interest / lower supply"
+    },
+    {
+      "category": "fitness",
+      "query": "fitness",
+      "averageInterest": 37.483333333333334,
+      "latestCompleteMonthInterest": 31.25,
+      "threeMonthChangePercent": -20.267611176702093,
+      "mappedListingCount": 0,
+      "supplySharePercent": 0,
+      "demandZ": 0.10444300252072104,
+      "supplyZ": -0.7905694150420949,
+      "demandGap": 0.8950124175628159,
+      "signal": "High interest / lower supply"
+    },
+    {
+      "category": "home",
+      "query": "home improvement",
+      "averageInterest": 1.866666666666667,
+      "latestCompleteMonthInterest": 1.5,
+      "threeMonthChangePercent": -18.400000000000006,
+      "mappedListingCount": 2,
+      "supplySharePercent": 25,
+      "demandZ": -1.1128719491388452,
+      "supplyZ": 0.7905694150420949,
+      "demandGap": -1.90344136418094,
+      "signal": "Supply-heavy"
+    },
+    {
+      "category": "childcare",
+      "query": "childcare",
+      "averageInterest": 1.7416666666666665,
+      "latestCompleteMonthInterest": 1.25,
+      "threeMonthChangePercent": -10.377358490566035,
+      "mappedListingCount": 0,
+      "supplySharePercent": 0,
+      "demandZ": -1.1171442290347025,
+      "supplyZ": -0.7905694150420949,
+      "demandGap": -0.32657481399260757,
+      "signal": "Balanced"
+    }
+  ],
+  "sensitivity": {
+    "window": {
+      "start": "2021-10",
+      "end": "2026-09",
+      "commonCompleteMonths": 60
+    },
+    "demandGaps": {
+      "restaurants": -0.2302158331275439,
+      "coffee": 1.580637361823809,
+      "fitness": 0.9026773580524353,
+      "home": -1.915668316849592,
+      "childcare": -0.33743056989910836
+    }
+  },
+  "finding": {
+    "strongestPositiveMismatch": "coffee",
+    "secondPositiveMismatch": "fitness",
+    "strongestOppositeMismatch": "home",
+    "robustAcrossTwelveAndSixtyMonthWindows": true
+  },
+  "limitations": [
+    "Google Trends values are relative search-interest indexes, not search volumes, people, customers, or market size.",
+    "New Jersey search behavior is broader than Mount Olive and is used only as a regional context signal.",
+    "The public Chamber directory is a selected membership directory, not a census of Mount Olive businesses.",
+    "Zero mapped listings means no listings in the mapped Chamber sample; it does not mean no local businesses exist.",
+    "Only 8 of 40 boundary-matched listings map to this taxonomy, so supply shares are highly sensitive to classification and directory coverage.",
+    "The broad term home improvement may include television-program, tax-credit, grant, and do-it-yourself intent unrelated to hiring a local provider.",
+    "The broad term childcare may include tax-credit and policy intent unrelated to finding a local provider.",
+    "The five terms have different semantic breadth. Their shared scale permits comparison but does not make them equally specific measures of purchase intent.",
+    "The result is descriptive and does not establish unmet demand, business viability, market saturation, or causality."
+  ]
+}
