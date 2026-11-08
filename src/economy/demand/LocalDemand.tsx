@@ -18,7 +18,7 @@ import {
   type DemandBatch,
   type SortKey,
 } from "./types";
-import { demoBatch } from "./demo";
+import { snapshot } from "./snapshot";
 import {
   exportAnalysis,
   fmt,
@@ -49,7 +49,7 @@ export default function LocalDemand() {
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
   }, []);
-  const [source, setSource] = useState("demo");
+  const [source, setSource] = useState("snapshot");
   const [batchId, setBatchId] = useState("");
   const [months, setMonths] = useState(12);
   const [importOpen, setImportOpen] = useState(false);
@@ -75,15 +75,15 @@ export default function LocalDemand() {
     }
   }, [api.active]);
   const batch =
-    source === "demo"
-      ? demoBatch
+    source === "snapshot"
+      ? snapshot
       : source === "api"
         ? api.active
         : (saved.imports.find((b) => b.id === batchId) ??
           saved.imports[0] ??
           null);
   const analysis = useMemo(
-    () => summarize(batch ?? { ...demoBatch, series: [] }, months),
+    () => summarize(batch ?? { ...snapshot, series: [] }, months),
     [batch, months],
   );
   const { rows } = analysis;
@@ -107,8 +107,8 @@ export default function LocalDemand() {
   const chosen = rows.find((r) => r.category === detail);
   const mapRow = rows.find((r) => r.category === mapCategory) ?? rows[0];
   const geographies =
-    source === "demo"
-      ? [demoBatch.geography]
+    source === "snapshot"
+      ? [snapshot.geography]
       : source === "api"
         ? api.active
           ? [api.active.geography]
@@ -140,7 +140,7 @@ export default function LocalDemand() {
   function remove() {
     if (
       !batch ||
-      batch.source === "demo" ||
+      source !== "import" ||
       !window.confirm(`Delete ${batch.name} from this browser?`)
     )
       return;
@@ -194,7 +194,7 @@ export default function LocalDemand() {
               setDetail(null);
             }}
           >
-            <option value="demo">Demo Data</option>
+            <option value="snapshot">Google Trends export</option>
             {api.active && <option value="api">Verified API Data</option>}
             <option value="import">This Browser</option>
           </select>
@@ -339,10 +339,10 @@ export default function LocalDemand() {
               }
             >
               {batch.demoSample
-                ? "Demo Data"
+                ? "Practice file"
                 : batch.verification === "verified-api"
                   ? "Verified API Data"
-                  : "Google Trends Import"}
+                  : batch === snapshot ? "Google Trends export" : "Google Trends Import"}
             </span>
             <strong>Search geography: {batch.geography}</strong>
             <span>
@@ -353,8 +353,8 @@ export default function LocalDemand() {
             {batch.verification === "verified-api"
               ? "Server-published aggregate search-interest indexes with verified provenance. "
               : batch.demoSample
-                ? "Import Google Trends data to replace demonstration search signals. "
-                : "User-supplied aggregate search-interest indexes, not independently authenticated. "}
+                ? "Practice file with generated values. "
+                : batch === snapshot ? "Google Trends export retrieved October 18, 2026. " : "User-supplied aggregate search-interest indexes, not independently authenticated. "}
             Normalized interest, not raw search counts or individual histories.
             Supply: {localSupply.length} mapped public listings with coordinates
             inside the township boundary; coordinates unverified.
@@ -852,8 +852,7 @@ export default function LocalDemand() {
       ) : (
         <Section title="Your imported comparisons">
           <p>
-            No Google Trends files are saved in this browser yet. The
-            demonstration remains available under Data Source: Demo Data.
+            No Google Trends files are saved in this browser.
           </p>
           <button className="eco-button" onClick={() => setImportOpen(true)}>
             <Upload size={15} />
@@ -883,7 +882,7 @@ export default function LocalDemand() {
             One listing maps to at most one category; ambiguous
             health/education/automotive listings are not forced into narrower
             specialties. Mapping uses only the raw business name and industry,
-            never synthetic membership status.
+            independently of membership status.
           </p>
           <h4>Demand Gap Index</h4>
           <p>
@@ -920,8 +919,7 @@ export default function LocalDemand() {
           <p>
             Search does not equal spending, intent or purchases. This is a
             research signal, not causal proof, a business-opening recommendation
-            or a saturation diagnosis. Demo search data is synthetic; supply is
-            the real represented directory. Imports are user-supplied and
+            or a saturation diagnosis. Local supply comes from the public directory. Imports are user-supplied and
             retained only in this browser's localStorage. Clearing site data
             removes them. No cross-device sync, background refresh, live feed or
             LLM is used.

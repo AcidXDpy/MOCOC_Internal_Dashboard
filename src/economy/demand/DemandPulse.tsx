@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { demoBatch } from "./demo";
+import { snapshot } from "./snapshot";
 import { signed, sortSummaries, summarize } from "./engine";
 import { InterestChart } from "./DemandCharts";
 import { Section } from "../shared";
@@ -7,7 +7,7 @@ import { useDemandApi } from "./useDemandApi";
 import "./demand.css";
 export default function DemandPulse({ onExplore }: { onExplore: () => void }) {
   const api = useDemandApi();
-  const batch = api.active ?? demoBatch;
+  const batch = api.active ?? snapshot;
   const data = summarize(batch, 12);
   const gap = sortSummaries(data.rows, "demandGap", "desc")[0];
   const rising = sortSummaries(data.rows, "change3m", "desc")[0];
@@ -31,9 +31,9 @@ export default function DemandPulse({ onExplore }: { onExplore: () => void }) {
               <b>{signed(gap.demandGap, 2)}</b>
             </button>
             <button onClick={onExplore}>
-              <span>Fastest rising category</span>
+              <span>Largest 3-month change</span>
               <strong>{rising.name}</strong>
-              <b>{signed(rising.change3m)}%</b>
+              <b>{signed(rising.change3m)}{rising.change3m !== null && "%"}</b>
             </button>
             <button onClick={onExplore}>
               <span>Top interest category</span>
@@ -52,11 +52,11 @@ export default function DemandPulse({ onExplore }: { onExplore: () => void }) {
           <strong
             className={api.active ? "demand-verified-badge" : "demand-demo"}
           >
-            {api.active ? "Verified API Data" : "Demo Data"}
+            {api.active ? "Verified API Data" : "Google Trends export"}
           </strong>{" "}
           {api.active
             ? `Official aggregate source · ${api.active.geography}.`
-            : "Search signals are synthetic. Supply uses real public listings. Full page supports your imports."}
+            : "New Jersey web searches · October 18, 2026 export."}
         </p>
       </Section>
     </div>

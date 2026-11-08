@@ -10180,7 +10180,7 @@
     ],
     "limitations": [
       "An optimizer chooses under its inputs; it does not validate intervention effectiveness.",
-      "No synthetic proposal benefits are written into observed model results."
+      "Proposal benefits are scenario assumptions."
     ],
     "result": null
   },
@@ -10193,7 +10193,7 @@
       "name": "Kaplan-Meier with optional delayed entry",
       "library": "statsmodels.duration.SurvfuncRight",
       "formula": "S(t)=product_(t_j<=t)(1-d_j/n_j)",
-      "description": "Reusable right-censored survival estimator is implemented and tested on synthetic fixtures only."
+      "description": "Reusable right-censored survival estimator is implemented and validated with simulated cases only."
     },
     "sourceIds": [],
     "requirements": [
@@ -10229,7 +10229,7 @@
       "name": "Common-adoption panel difference-in-differences",
       "library": "statsmodels OLS with unit-clustered covariance",
       "formula": "Y_it=alpha_i+lambda_t+beta(Treated_i * Post_t)+epsilon_it",
-      "description": "Reusable balanced-panel estimator with common treatment timing, unit/time effects and clustered uncertainty; tested on synthetic fixtures only."
+      "description": "Reusable balanced-panel estimator with common treatment timing, unit/time effects and clustered uncertainty; validated with simulated cases only."
     },
     "sourceIds": [],
     "requirements": [

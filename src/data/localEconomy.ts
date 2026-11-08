@@ -474,7 +474,7 @@ export const countyBusinessPatterns = {
 export const publicDataNotes = [
   "The member directory is scraped from public Chamber/Membee listing pages; it is not an official internal roster export.",
   "Coordinates, websites, addresses, and phone numbers are used only when exposed by the public directory.",
-  "Membership start dates, renewal dates, emails, contact names, and member-status fields remain synthetic placeholders until the Chamber provides official data.",
+  "Membership start dates, renewal dates, emails, contact names, and member-status fields require Chamber verification.",
   "County Business Patterns covers employer establishments with paid employees; it excludes most nonemployer businesses and some public-sector activity.",
   "ZIP Business Patterns 2023 supplies employer-establishment counts for Budd Lake (07828) and Flanders (07836); counts describe establishments, not a complete competitor list.",
   "ACS values are estimates with sampling uncertainty. The intelligence views show margin-of-error and confidence labels rather than treating estimates as exact counts.",

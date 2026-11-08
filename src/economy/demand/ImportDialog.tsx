@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Download, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { DemandDialog } from "./DemandDialog";
 import { parseTrends, type ParsedTrends } from "./csv";
 import { categories, type CategoryId, type DemandBatch } from "./types";
@@ -186,14 +186,7 @@ export default function ImportDialog({
             onChange={(e) => void upload(e.target.files?.[0])}
           />
         </label>
-        <a
-          className="eco-link-button"
-          href="/sample-data/google-trends/demonstration.csv"
-          download
-        >
-          <Download size={14} />
-          Download Sample CSV (Demo Data)
-        </a>
+
       </div>
       {busy && <p role="status">Reading and validating observations...</p>}
       {error && (
@@ -211,7 +204,7 @@ export default function ImportDialog({
             </p>
             {parsed.demoSample && (
               <strong className="demand-demo">
-                Demo Data · synthetic sample, not Google observations
+                Practice file · generated values
               </strong>
             )}
             <div className="eco-table-wrap">

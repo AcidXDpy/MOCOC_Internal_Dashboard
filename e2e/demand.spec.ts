@@ -101,8 +101,8 @@ test("empty, malformed, slow and failed API responses retain labeled demo data",
       });
     });
     await page.goto("/#demand");
-    await expect(page.getByLabel("Demand data source")).toHaveValue("demo");
-    await expect(page.locator(".demand-evidence")).toContainText("Demo Data");
+    await expect(page.getByLabel("Demand data source")).toHaveValue("snapshot");
+    await expect(page.locator(".demand-evidence")).toContainText("Google Trends export");
   }
 });
 
@@ -118,7 +118,7 @@ test("browser imports remain selectable beside verified API data", async ({
   await save(page);
   await expect(
     page.getByLabel("Demand data source").locator("option"),
-  ).toHaveText(["Demo Data", "Verified API Data", "This Browser"]);
+  ).toHaveText(["Google Trends export", "Verified API Data", "This Browser"]);
   await expect(page.getByLabel("Demand data source")).toHaveValue("import");
   await expect(page.locator(".demand-evidence")).toContainText(
     "Google Trends Import",
@@ -147,7 +147,7 @@ test("homepage pulse identifies verified source or explicit demo fallback", asyn
   );
   await page.reload();
   await expect(page.locator(".demand-home .demand-context")).toContainText(
-    "Demo Data",
+    "Google Trends export",
   );
 });
 
@@ -388,11 +388,11 @@ test("homepage preview, filters, charts, sorting, details, export and map", asyn
   ).toBeVisible();
   await page.getByRole("button", { name: /Explore Local Demand/ }).click();
   await expect(page.locator(".eco-page-heading h1")).toHaveText("Local Demand");
-  await expect(page.locator(".demand-bubble")).toHaveCount(10);
+  await expect(page.locator(".demand-bubble")).toHaveCount(5);
   await expect(page.locator(".demand-line .recharts-line-curve")).toHaveCount(
     3,
   );
-  await expect(page.locator(".demand-evidence")).toContainText("Demo Data");
+  await expect(page.locator(".demand-evidence")).toContainText("Google Trends export");
   for (const months of ["3", "6", "24", "12"]) {
     await page.getByLabel("Demand time range").selectOption(months);
     await expect(page.locator(".demand-kpis")).toContainText(
@@ -407,7 +407,7 @@ test("homepage preview, filters, charts, sorting, details, export and map", asyn
     .check();
   await expect(
     page.getByRole("checkbox", { name: "Auto Repair", exact: true }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await expect(page.locator(".demand-line .recharts-line-curve")).toHaveCount(
     5,
   );
@@ -534,7 +534,7 @@ test("synthetic sample stays labeled and independent scales cannot produce gaps"
   );
   await upload(page, await sample.text(), "demonstration.csv");
   await page.getByRole("button", { name: "Import Data", exact: true }).click();
-  await expect(page.locator(".demand-evidence")).toContainText("Demo Data");
+  await expect(page.locator(".demand-evidence")).toContainText("Practice file");
   await expect(
     page.getByText("Comparison not available", { exact: true }),
   ).toBeVisible();
@@ -549,7 +549,7 @@ test("desktop, tablet and mobile layouts and dialogs fit with rendered charts", 
   for (const width of [1440, 820, 390]) {
     await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
     await page.goto("/#demand");
-    await expect(page.locator(".demand-bubble")).toHaveCount(10);
+    await expect(page.locator(".demand-bubble")).toHaveCount(5);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth + 1,

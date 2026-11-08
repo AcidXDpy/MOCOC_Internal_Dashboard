@@ -223,8 +223,8 @@ export function exportAnalysis(batch: DemandBatch, analysis: DemandAnalysis) {
         batch.verification === "verified-api"
           ? "Verified API Data"
           : batch.demoSample
-            ? "Demo Data"
-            : "This Browser",
+            ? "Practice file"
+            : batch.id === "nj-trends-2026-10-18" ? "Google Trends export" : "This Browser",
       import_date: batch.importedAt,
       common_months: analysis.commonMonths,
       gap_limitation:

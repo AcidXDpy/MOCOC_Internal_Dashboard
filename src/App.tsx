@@ -617,7 +617,7 @@ function Insights() {
 
       <SectionTitle
         title="Renewal Pipeline"
-        detail={`${upcoming.length} members renew within 60 days based on the current renewal placeholder field.`}
+        detail="Renewal dates require Chamber records."
       />
       <Panel title="Upcoming Renewals">
         <MemberList
@@ -844,7 +844,7 @@ function DataQuality() {
         <Panel title="Invalid Dates">
           <EmptyState
             title="No invalid dates detected"
-            description="All current renewal-date fields parse successfully."
+            description="Coverage of recorded renewal dates."
           />
         </Panel>
         <Panel title="Category Review">
@@ -1043,7 +1043,7 @@ function ProjectOverview({
           <Panel key={item} title={item}>
             <p className="text-sm leading-6 text-slate-400">
               Implemented as part of the internal analytics platform using
-              public source data and clearly labeled placeholder fields.
+              the public Chamber directory.
             </p>
           </Panel>
         ))}
@@ -1052,7 +1052,7 @@ function ProjectOverview({
         <Panel title="Privacy Approach">
           <div className="space-y-2">
             <RiskLine text="This page intentionally avoids displaying member names, phone numbers, exact addresses, internal notes, or individual priority labels." />
-            <RiskLine text="The internal app uses public directory data and marks synthetic fields until official Chamber exports are available." />
+            <RiskLine text="The internal app uses public directory data and identifies fields that require Chamber verification." />
           </div>
         </Panel>
         <Panel title="Technology">
@@ -1350,7 +1350,7 @@ function MemberDrawer({
         <Panel title="Internal Notes">
           <textarea
             className="control min-h-28 py-3"
-            placeholder="Add staff note. Notes are local UI only until a database is added."
+            placeholder="Add a note on this device"
             aria-label="Internal notes"
           />
         </Panel>

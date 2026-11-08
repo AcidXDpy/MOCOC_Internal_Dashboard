@@ -422,11 +422,11 @@ def readiness_models():
                       "The live browser policy lab solves explicit user scenarios. Python does not supply estimated causal benefits.",
                       requirements=[requirement("User costs, benefit assumptions and constraints", False, "Configured in the browser policy lab")],
                       limitations=["An optimizer chooses under its inputs; it does not validate intervention effectiveness.",
-                                   "No synthetic proposal benefits are written into observed model results."])
+                                   "Proposal benefits are scenario assumptions."])
     survival = envelope("survival", "Business survival readiness", "blocked", "readiness",
                         "Kaplan-Meier with optional delayed entry", "statsmodels.duration.SurvfuncRight",
                         "S(t)=product_(t_j<=t)(1-d_j/n_j)",
-                        "Reusable right-censored survival estimator is implemented and tested on synthetic fixtures only.",
+                        "Reusable right-censored survival estimator is implemented and validated with simulated cases only.",
                         requirements=[requirement("Business opening and verified closure dates", False, "Directory presence is not survival history"),
                                       requirement("Censoring dates and delayed-entry records", False, "Must distinguish closure from missing or unlisted"),
                                       requirement("Representative business cohort", False, "Voluntary Chamber members are selected")],
@@ -436,7 +436,7 @@ def readiness_models():
     causal = envelope("causal", "Causal policy evaluation readiness", "blocked", "readiness",
                       "Common-adoption panel difference-in-differences", "statsmodels OLS with unit-clustered covariance",
                       "Y_it=alpha_i+lambda_t+beta(Treated_i * Post_t)+epsilon_it",
-                      "Reusable balanced-panel estimator with common treatment timing, unit/time effects and clustered uncertainty; tested on synthetic fixtures only.",
+                      "Reusable balanced-panel estimator with common treatment timing, unit/time effects and clustered uncertainty; validated with simulated cases only.",
                       requirements=[requirement("Defined intervention and adoption date", False, "No identified intervention in observed data"),
                                     requirement("Measured outcome and comparison panel", False, "At least 3 pre and 2 post periods; 10 treated and 10 control units enforced"),
                                     requirement("Defensible identification", False, "Parallel trends, no anticipation, no interference, stable composition")],

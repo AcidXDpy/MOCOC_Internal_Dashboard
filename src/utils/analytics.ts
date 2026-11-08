@@ -209,6 +209,7 @@ export function getPriorityAlerts(
 export function getRenewalUrgency(member: Member) {
   const renewal = new Date(`${member.renewal_date}T12:00:00`);
   const days = Math.ceil((renewal.getTime() - today.getTime()) / 86400000);
+  if (!Number.isFinite(days)) return "Unrecorded";
   if (days < 0) return "Past Due";
   if (days <= 60) return "Due Soon";
   if (days <= 120) return "Upcoming";
@@ -224,7 +225,7 @@ export function getContactability(member: Member) {
 
 export function getRenewalsByMonth(members: Member[]) {
   return chartFromCounts(
-    countBy(members, (member) => {
+    countBy(members.filter(member => member.renewal_date), (member) => {
       const date = new Date(`${member.renewal_date}T12:00:00`);
       return date.toLocaleString("en-US", { month: "short" });
     }),
@@ -424,12 +425,12 @@ export function getSourceCoverage(members: Member[]) {
       detail: "From public directory map data",
     },
     {
-      label: "Synthetic field load",
+      label: "Unverified fields",
       value: Math.min(
         100,
         Math.round((synthetic / Math.max(members.length * 5, 1)) * 100),
       ),
-      detail: `${synthetic} placeholder fields awaiting official exports`,
+      detail: `${synthetic} fields outside public directory coverage`,
     },
   ];
 }

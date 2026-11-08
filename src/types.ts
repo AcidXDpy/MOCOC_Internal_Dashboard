@@ -1,4 +1,4 @@
-export type MembershipStatus = "active" | "at-risk" | "inactive" | "prospect";
+export type MembershipStatus = "active" | "at-risk" | "inactive" | "prospect" | "unknown";
 
 export interface Member {
   member_id: string;

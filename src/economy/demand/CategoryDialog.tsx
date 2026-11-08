@@ -19,11 +19,11 @@ export default function CategoryDialog({
     <DemandDialog title={row.name} onClose={onClose}>
       <p className="demand-context">
         {batch.demoSample ? (
-          <strong className="demand-demo">Demo Data</strong>
+          <strong className="demand-demo">Practice file</strong>
         ) : batch.verification === "verified-api" ? (
           <strong className="demand-verified-badge">Verified API Data</strong>
         ) : (
-          <strong>Google Trends Import</strong>
+          <strong>{batch.id === "nj-trends-2026-10-18" ? "Google Trends export" : "Google Trends Import"}</strong>
         )}{" "}
         Search geography: {batch.geography}
       </p>
